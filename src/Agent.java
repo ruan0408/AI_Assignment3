@@ -11,52 +11,93 @@ import java.io.*;
 import java.net.*;
 
 public class Agent {
-
-	private String actions = "FLRCB";
+	
+	private String actions = "FLR";
 	private Iterator<Integer> ints;
-	private int[][] dynamites;
-	private int[][] axes;
+	private List<Position> dynamites;
+	private List<Position> axes;
+	private List<Position> boats;
+	private Position gold;
+	
+	private Position myPos;
+	private Orientation ori;
+	private Map map;
 	
 	public Agent() {
+		map = new Map(new char[160][160]);
+		map.fill('?');
+		myPos = new Position(79, 79);
+		ori = Orientation.SOUTH;
+		
 		Random r = new Random();
 		ints = r.ints(0, actions.length()).iterator();
+		
 	}
 	
 	public char get_action( char view[][] ) {
-
-      // REPLACE THIS CODE WITH AI TO CHOOSE ACTION
-		char a;
-		do {
-			a = actions.charAt(ints.next());
+		char action;
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		while(willIDie(a, view));
+		map.update(view, ori, myPos);
+		map.print();
 		
-		return a;
-	   
-	   //System.out.println("lalallala"+view[0][2]);
-
-//      int ch=0;
-//
-//      System.out.print("Enter Action(s): ");
-//
-//      try {
-//         while ( ch != -1 ) {
-//            // read character from keyboard
-//            ch  = System.in.read();
-//
-//            switch( ch ) { // if character is a valid action, return it
-//            case 'F': case 'L': case 'R': case 'C': case 'B':
-//            case 'f': case 'l': case 'r': case 'c': case 'b':
-//               return((char) ch );
-//            }
-//         }
-//      }
-//      catch (IOException e) {
-//         System.out.println ("IO error:" + e );
-//      }
-
-      //return 0;
+		do {
+			action = actions.charAt(ints.next());
+		}
+		while(willIDie(action, view));
+		
+		try {
+			updateState(action);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return action;
    }
+	
+	private void updateState(char action) throws Exception {
+		switch(action) {
+		case 'L':
+			ori = ori.next(1); break;
+		case 'R':
+			ori = ori.next(3); break;
+		case 'F':
+			if(!allowedToMove()) return;
+			switch(ori) {
+			case EAST: 	myPos.incrementColumn(1); 	break;
+			case NORTH: myPos.incrementRow(-1); 	break;
+			case WEST: 	myPos.incrementColumn(-1); 	break;
+			case SOUTH: myPos.incrementRow(1); 		break;
+			}
+		case 'C':
+			if(map.getFrontTile(myPos, ori) == 'T') 
+				map.setFrontTile(myPos, ori, ' ');
+			break;
+		case 'B':
+			if(map.getFrontTile(myPos, ori) == '*') 
+				map.setFrontTile(myPos, ori, ' ');
+			break;
+		}
+	}
+	
+	private boolean allowedToMove() {
+		if(map.getFrontTile(myPos, ori) == '*' || 
+				(map.getFrontTile(myPos, ori) == 'T'))
+			return false;
+		return true;
+	}
+	
+	private char getMe() {
+		switch(ori) {
+		case NORTH: return '^';
+		case WEST: 	return '<';
+		case SOUTH: return 'v';
+		case EAST:	return '>';
+		default: 	return 'e';
+		}
+	}
 	
 	private boolean willIDie(int action, char[][] state) {
 		if(action == 'F' && (state[1][2] == '.' || state[1][2] == '~'))
