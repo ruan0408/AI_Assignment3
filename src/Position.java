@@ -9,22 +9,10 @@ public class Position {
 		this.column = column;
 	}
 	
-	public void setRow(int r) {
-		row = r;
-	}
-	
-	public void setColumn(int c) {
-		column = c;
-	}
-	
-	public int getRow() {
-		return row;
-	}
-	
-	public int getColumn() {
-		return column;
-	}
-	
+	public void setRow(int r) {row = r;}
+	public void setColumn(int c) {column = c;}
+	public int getRow() {return row;}
+	public int getColumn() {return column;}
 	public void incrementRow(int amount) throws Exception {
 		row += amount;
 		if(row < 0) throw new Exception();
@@ -33,5 +21,26 @@ public class Position {
 	public void incrementColumn(int amount) throws Exception {
 		column += amount;
 		if(column < 0) throw new Exception();
+	}
+	
+	public int distance(Position b) {
+		return Math.abs(getRow()-b.getRow()) + Math.abs(getColumn()-b.getColumn());
+	}
+	
+	public void print() {
+		System.out.println("x: "+row+", y: "+column);
+	}
+	
+	@Override
+	public boolean equals(Object b) {
+		Position aux = (Position)b;
+		if(row == aux.getRow() && column == aux.getColumn())
+			return true;
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return row*column + row + column;
 	}
 }

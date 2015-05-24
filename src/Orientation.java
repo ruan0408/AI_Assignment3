@@ -1,7 +1,7 @@
 
 public enum Orientation {
 	EAST, NORTH, WEST, SOUTH;
-	
+
 	public Orientation next(int n) {
 		switch((this.ordinal()+n)%4) {
 		case 0: return EAST;
