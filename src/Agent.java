@@ -14,6 +14,9 @@ public class Agent {
 
 	private String actions = "FLR";
 	private Iterator<Integer> ints;
+	private boolean hasAxe;
+	private boolean hasGold;
+	private boolean	isInBoat;
 //	private List<Position> dynamites;
 //	private List<Position> axes;
 //	private List<Position> boats;
@@ -48,8 +51,11 @@ public class Agent {
 		Position gold;
 		if(!path.isEmpty()) {
 			action = path.remove(0);
+			
 		} else if((gold = map.getGoldPosition()) != null) {
 			path = pathToActions(map.findPath(myPos, gold));
+			for(Character a : path) System.out.println(a);
+			
 			action = path.remove(0);
 		} else {
 			do {
@@ -60,9 +66,11 @@ public class Agent {
 
 		try {
 			updateState(action);
+			Thread.sleep(30);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return action;
 	}
 	
@@ -70,28 +78,35 @@ public class Agent {
 		List<Character> l = new ArrayList<Character>();
 		String actions = "";
 		Position current = myPos;
+		Orientation oriAux = ori;
 		for(Position pos : list) {
-			if(getFrontPosition(current, Orientation.NORTH).equals(pos)) 
+			if(getFrontPosition(current, Orientation.NORTH, oriAux).equals(pos)) 
 				actions += "F";
-			else if(getFrontPosition(current, Orientation.SOUTH).equals(pos)) 
+			else if(getFrontPosition(current, Orientation.SOUTH, oriAux).equals(pos)) { 
 				actions += "RRF";
-			else if(getFrontPosition(current, Orientation.EAST).equals(pos)) 
+				oriAux = oriAux.next(2);
+			}
+			else if(getFrontPosition(current, Orientation.EAST, oriAux).equals(pos)) { 
 				actions += "RF";
-			else if(getFrontPosition(current, Orientation.WEST).equals(pos)) 
+				oriAux = oriAux.next(3);
+			}
+			else if(getFrontPosition(current, Orientation.WEST, oriAux).equals(pos)) {
 				actions += "LF";
+				oriAux = oriAux.next(1);
+			}
 			current = pos;
 		}
 		for(char c : actions.toCharArray()) l.add(c);
 		return l;
 	}
 	
-	private Position getFrontPosition(Position pos, Orientation orient) {
+	private Position getFrontPosition(Position pos, Orientation orient, Orientation my) {
 		Orientation aux = null;
 		switch(orient) {
-		case NORTH:	aux = ori.next(0);	break; //front
-		case EAST:	aux = ori.next(3);	break; //right
-		case SOUTH:	aux = ori.next(2);	break; //back
-		case WEST:	aux = ori.next(1);	break; //left
+		case NORTH:	aux = my.next(0);	break; //front
+		case EAST:	aux = my.next(3);	break; //right
+		case SOUTH:	aux = my.next(2);	break; //back
+		case WEST:	aux = my.next(1);	break; //left
 		default: break;
 		}
 		return map.getFrontPosition(pos, aux);

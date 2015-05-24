@@ -81,8 +81,6 @@ public class Map {
 			path.add(current);
 		} while(!current.equals(a));
 		Collections.reverse(path);
-//		for(Position pos :  path) pos.print();
-//		System.exit(-1);
 		return path;
 	}
 	
