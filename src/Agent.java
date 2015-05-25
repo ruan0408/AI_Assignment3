@@ -17,11 +17,11 @@ public class Agent {
 
 	private Position myPos;
 	private Orientation ori;
-	protected Map map;
+	protected WorldMap map;
 	private TourGuide guide;
 
 	public Agent() {
-		map = new Map(new char[160][160]);
+		map = new WorldMap(new char[160][160]);
 		map.fill('?');
 		myPos = new Position(79, 79);
 		ori = Orientation.SOUTH;
@@ -34,6 +34,11 @@ public class Agent {
 	public Orientation getOrientation(){return ori;}
 	public void setHasGold(boolean b){hasGold = b;}
 	public boolean hasGold(){return hasGold;}
+	public boolean hasAxe(){return hasAxe;}
+	public boolean hasDynamite(){return numberOfDynamites != 0;}
+	public void addDynamite(){numberOfDynamites++;}
+	public int numberDynamites(){return numberOfDynamites;}
+	public void setAxe(){hasAxe = true;}
 	public boolean isOnBoat(){return isOnBoat;}
 	public void setOnBoat(Boolean b){isOnBoat = b;}
 
@@ -45,7 +50,7 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, myPos);
-		map.print();
+		//map.print();
 		action = guide.next();
 
 		try {
