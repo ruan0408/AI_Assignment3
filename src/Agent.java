@@ -12,7 +12,7 @@ public class Agent {
 
 	private boolean hasAxe;
 	private boolean hasGold;
-	private boolean isInBoat;
+	private boolean isOnBoat;
 	private int numberOfDynamites;
 
 	private Position myPos;
@@ -26,12 +26,16 @@ public class Agent {
 		myPos = new Position(79, 79);
 		ori = Orientation.SOUTH;
 		guide = new TourGuide(this);
+		hasAxe = hasGold = isOnBoat = false;
+		numberOfDynamites = 0;
 	}
 	
 	public Position getPosition(){return myPos;}
 	public Orientation getOrientation(){return ori;}
 	public void setHasGold(boolean b){hasGold = b;}
 	public boolean hasGold(){return hasGold;}
+	public boolean isOnBoat(){return isOnBoat;}
+	public void setOnBoat(Boolean b){isOnBoat = b;}
 
 	public char get_action( char view[][] ) {
 		char action;

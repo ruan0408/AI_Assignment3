@@ -23,7 +23,10 @@ public class Map {
 	public int columns() {return map[0].length;}
 	public void setCharAt(int row, int column, char c) {map[row][column] = c;}
 	public char getCharAt(int row, int column) {return map[row][column];}
-
+	public boolean isUnknown(int row, int column) throws ArrayIndexOutOfBoundsException{
+		return getCharAt(row, column) == '?';
+	}
+	
 	public void rotate(Orientation ori) {
 		char[][] newMap = new char[rows()][columns()];
 		Position aux;
@@ -60,10 +63,10 @@ public class Map {
 		java.util.Map<Position, Integer> explored = new HashMap<Position, Integer>();
 		java.util.Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
 		List<Position> path = new ArrayList<Position>();
-		Position current;
+		Position current = null;
 		list.put(a, 0);
 		explored.put(a, 1);
-		while(!(current = getBestPosition(list)).equals(b) && !list.isEmpty()) {
+		while(!list.isEmpty() && !(current = getBestPosition(list)).equals(b)) {
 			for(Position pos : getValidNeighbours(current)) {
 				if(explored.get(pos) == null) {
 					explored.put(pos, 1);
@@ -74,7 +77,7 @@ public class Map {
 			list.remove(current);
 		}
 
-		current = b;
+		//current = b;
 		path.add(current);
 		do {
 			current = parent.get(current);
@@ -109,7 +112,9 @@ public class Map {
 
 	private boolean isValid(int r, int c) {
 		if(r >= 0 && r < rows() && c >= 0 && c < columns() && 
-				getCharAt(r, c) != '.' && getCharAt(r, c) != '*' && getCharAt(r, c) != 'T')
+				getCharAt(r, c) != '.' && getCharAt(r, c) != '*' &&
+				getCharAt(r, c) != 'T' && getCharAt(r, c) != '?' && 
+				getCharAt(r, c) != '~')
 			return true;
 		return false;
 	}
