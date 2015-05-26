@@ -73,7 +73,6 @@ public class Agent {
 				map.setFrontTile(myPos, ori, ' ');
 			break;
 		case 'F':
-			//System.out.println(onBoat());
 			if(!allowedToMove()) return;
 			switch(frontTile) {
 			case 'B': 
@@ -84,22 +83,22 @@ public class Agent {
 				goForward();
 				break;
 			case 'a': 
-				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setOnBoat(false);
 				setAxe();
 				goForward();
 				break;
 			case 'd': 
-				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setOnBoat(false);
 				addDynamite();
 				goForward();
 				break;
 			case 'g': 
-				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setOnBoat(false);
 				setGold();
 				goForward();
 				break;
 			case ' ': 
-				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setOnBoat(false);
 				goForward();
 				break;
 			default: System.out.println("DEFAULT TILE HAPPENED");
@@ -124,7 +123,6 @@ public class Agent {
 
 	private boolean allowedToMove() {
 		char frontTile = map.getFrontTile(myPos, ori);
-		//System.out.println("allowed "+onBoat());
 		if(frontTile == ' ' || frontTile == 'd' || frontTile == 'a' || 
 		   frontTile == 'B' || frontTile == 'g' || (frontTile == '~' && onBoat())) 
 			return true;

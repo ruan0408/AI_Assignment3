@@ -74,14 +74,14 @@ public class TourGuide {
 	
 	private char setPathAndAct(List<Character> actions) {
 		path = actions;
-		System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
+		//System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
 		return path.remove(0);
 	}
 	
 	private List<Character> getActionsToPosition(Position end) {
-		List<Position> l = findPath(agent.getPosition(), end);
-		for(Position p : l)
-			System.out.println("\t\t "+ p.toString());
+//		List<Position> l = findPath(agent.getPosition(), end);
+//		for(Position p : l)
+//			System.out.println("\t\t "+ p.toString());
 		return pathToActions(findPath(agent.getPosition(), end));
 	}
 		
@@ -97,7 +97,6 @@ public class TourGuide {
 		f.put(start, start.distance(end));
 		explored.put(start, 1);
 		parent.put(start, start);
-		System.out.println(agent.onBoat());
 		AgentState s = new AgentState(agent.hasAxe(), agent.onBoat(), agent.numberDynamites());
 		states.put(start, s);
 		
@@ -142,25 +141,25 @@ public class TourGuide {
 		AgentState currentState = states.get(pos);
 		Position newPos;
 		
-		if((newState = isValid(r-1, c, pos, explored, currentState)) != null){
+		if((newState = isValid(r-1, c, explored, currentState)) != null){
 			newPos = new Position(r-1, c);
 			list.add(newPos);
 			explored.put(newPos, 1);
 			states.put(newPos, newState);
 		}
-		if((newState = isValid(r, c+1, pos, explored, currentState)) != null) {
+		if((newState = isValid(r, c+1, explored, currentState)) != null) {
 			newPos = new Position(r, c+1);
 			list.add(newPos);
 			explored.put(newPos, 1);
 			states.put(newPos, newState);
 		}
-		if((newState = isValid(r+1, c, pos, explored, currentState)) != null) {
+		if((newState = isValid(r+1, c, explored, currentState)) != null) {
 			newPos = new Position(r+1, c);
 			list.add(newPos);
 			explored.put(newPos, 1);
 			states.put(newPos, newState);
 		}
-		if((newState = isValid(r, c-1, pos, explored, currentState)) != null) {
+		if((newState = isValid(r, c-1, explored, currentState)) != null) {
 			newPos = new Position(r, c-1);
 			list.add(newPos);
 			explored.put(newPos, 1);
@@ -170,57 +169,39 @@ public class TourGuide {
 	}
 
 	//returns the new state if this position is valid and null otherwise
-	private AgentState isValid(int r, int c, Position old, Map<Position, Integer> explored, AgentState currentState) {
+	private AgentState isValid(int r, int c, Map<Position, Integer> explored, AgentState currentState) {
 		WorldMap map = agent.map;
 		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return null;
 		if(explored.containsKey(new Position(r, c))) return null;
-		char oldTile = map.getCharAt(old);
-		System.out.println("oldTile "+oldTile);
+		
 		AgentState newState = new AgentState(currentState);
 		switch(map.getCharAt(r, c)) {
 		case '.':
-		case '?':
-			System.out.println("A");
-			return null;
+		case '?': return null;
 		case ' ':
-			System.out.println("B");
-			// boat is not docking
-			if(!currentState.boat || oldTile != '~') newState.boat = false;
+			newState.boat = false;
 			break;
-		case '~':
-			System.out.println("C");
-			//System.out.println(currentState.boat);
-			if(!currentState.boat) return null;
-			break;
+		case '~': if(!currentState.boat) return null; break;
 		case 'T':
-			System.out.println("D");
-			//System.exit(-1);
-			if(!currentState.boat || oldTile != '~') newState.boat = false;
+			newState.boat = false;
 			if(currentState.axe) return newState;
 			else if(currentState.dynamites > 0) {newState.dynamites--;}
 			else newState = null;
 			break;
 		case '*':
-			System.out.println("E");
-			//System.exit(-1);
-			if(!currentState.boat || oldTile != '~') newState.boat = false;
+			newState.boat = false;
 			if(currentState.dynamites > 0) {newState.dynamites--;}
 			else newState = null;
 			break;
 		case 'B':
-			System.out.println("F");
 			newState.boat = true; 
 			break;
 		case 'd': 
-			System.out.println("G");
-			//System.exit(-1);
-			if(!currentState.boat || oldTile != '~') newState.boat = false;
+			newState.boat = false;
 			newState.dynamites++;
 			break;
 		case 'a':
-			System.out.println("H");
-			//System.exit(-1);
-			if(!currentState.boat || oldTile != '~') newState.boat = false;
+			newState.boat = false;
 			newState.axe = true;
 			break;
 		default:
