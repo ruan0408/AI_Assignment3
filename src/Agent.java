@@ -50,7 +50,7 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, myPos);
-		map.print();
+		//map.print();
 		action = guide.next();
 
 		try {

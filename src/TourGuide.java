@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,18 +9,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.event.ListSelectionEvent;
-
 public class TourGuide {
 
 	private Agent agent;
 	private List<Character> path;
 	private Set<Position> border;
 
-	private final String actions = "FLR";
-	private Iterator<Integer> ints;
+	//private final String actions = "FLR";
+	//private Iterator<Integer> ints;
+	//private int count = 0;
 	private Random random;
-	private int count = 0;
 
 	public TourGuide(Agent agent) {
 		this.agent = agent;
@@ -69,53 +66,89 @@ public class TourGuide {
 		return action;
 	}
 	
+//	public List<Position> findPath(Position start, Position end) {
+//		Map<Position, Integer> f = new HashMap<Position, Integer>();
+//		Map<Position, Integer> g = new HashMap<Position, Integer>();
+//		Map<Position, Integer> explored = new HashMap<Position, Integer>();
+//		Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
+//		List<Position> path = new ArrayList<Position>();
+//		Position current, reached = null;
+//		g.put(start, 0);
+//		f.put(start, start.distance(end));
+//		explored.put(start, 1);
+//		parent.put(start, start);
+//		int nDyn = agent.numberDynamites();
+//		boolean axe = agent.hasAxe();
+//		boolean boat = agent.isOnBoat();
+//		System.out.println(agent.isOnBoat());
+//		System.out.println(agent.map.getCharAt(end.getRow(), end.getColumn()));
+//		current = reached = findPathR(start, end, nDyn, axe, boat, f, g, explored, parent);
+//		
+//		path.add(reached);
+//		do {
+//			current = parent.get(current);
+//			path.add(current);
+//		} while(!current.equals(start));
+//		Collections.reverse(path);
+//		return path;
+//	}
+	
+//	public Position findPathR(Position mid, Position end, Integer nDyn, Boolean axe, Boolean boat, Map<Position, Integer> f, 
+//							  Map<Position, Integer> g, Map<Position, Integer> explored, Map<Position, Position> parent) {
+//		
+//		if(!f.isEmpty() && !mid.equals(end)) {
+//			for(Position pos : getValidNeighbours(mid, explored, nDyn, axe, boat)) {
+//				explored.put(pos, 1);
+//				g.put(pos, g.get(mid)+1);
+//				f.put(pos, g.get(pos) + pos.distance(end));
+//				parent.put(pos, mid);
+//			}
+//			f.remove(mid);
+//			g.remove(mid);
+//			if(!f.isEmpty()){
+//				System.out.println("lallaal");
+//				System.out.println(getValidNeighbours(mid, explored, nDyn, axe, boat).size());
+//				Position current = getBestPosition(f);
+//				return findPathR(current, end, nDyn, axe, boat, f, g, explored, parent);
+//			}
+//		}
+//		return mid;
+//	}
+//	
 	public List<Position> findPath(Position start, Position end) {
 		Map<Position, Integer> f = new HashMap<Position, Integer>();
 		Map<Position, Integer> g = new HashMap<Position, Integer>();
 		Map<Position, Integer> explored = new HashMap<Position, Integer>();
 		Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
+		Map<Position, AgentState> states  = new HashMap<Position, AgentState>();
 		List<Position> path = new ArrayList<Position>();
-		Position current, reached = null;
+		Position current = null;
 		g.put(start, 0);
 		f.put(start, start.distance(end));
 		explored.put(start, 1);
 		parent.put(start, start);
-		int nDyn = agent.numberDynamites();
-		boolean axe = agent.hasAxe();
-		boolean boat = agent.isOnBoat();
-		System.out.println(agent.isOnBoat());
-		System.out.println(agent.map.getCharAt(end.getRow(), end.getColumn()));
-		current = reached = findPathR(start, end, nDyn, axe, boat, f, g, explored, parent);
+		AgentState s = new AgentState(agent.hasAxe(), agent.isOnBoat(), agent.numberDynamites());
+		states.put(start, s);
 		
-		path.add(reached);
+		while(!f.isEmpty() && !(current = getBestPosition(f)).equals(end)) {
+			current.print();
+			for(Position candPos : getValidNeighbours(current, explored, states)) {
+				//explored.put(candPos, 1);
+				g.put(candPos, g.get(current)+1);
+				f.put(candPos, g.get(candPos) + candPos.distance(end));
+				parent.put(candPos, current);
+			}
+			f.remove(current);
+			g.remove(current);
+		}
+		
+		path.add(current);
 		do {
 			current = parent.get(current);
 			path.add(current);
 		} while(!current.equals(start));
 		Collections.reverse(path);
 		return path;
-	}
-	
-	public Position findPathR(Position mid, Position end, Integer nDyn, Boolean axe, Boolean boat, Map<Position, Integer> f, 
-							  Map<Position, Integer> g, Map<Position, Integer> explored, Map<Position, Position> parent) {
-		
-		if(!f.isEmpty() && !mid.equals(end)) {
-			for(Position pos : getValidNeighbours(mid, explored, nDyn, axe, boat)) {
-				explored.put(pos, 1);
-				g.put(pos, g.get(mid)+1);
-				f.put(pos, g.get(pos) + pos.distance(end));
-				parent.put(pos, mid);
-			}
-			f.remove(mid);
-			g.remove(mid);
-			if(!f.isEmpty()){
-				System.out.println("lallaal");
-				System.out.println(getValidNeighbours(mid, explored, nDyn, axe, boat).size());
-				Position current = getBestPosition(f);
-				return findPathR(current, end, nDyn, axe, boat, f, g, explored, parent);
-			}
-		}
-		return mid;
 	}
 
 	// If necessary, can be improved using a priority queue
@@ -132,34 +165,77 @@ public class TourGuide {
 	}
 
 	private List<Position> getValidNeighbours(Position pos, Map<Position, Integer>explored, 
-											  Integer nDyn, Boolean axe, Boolean boat) {
+											  Map<Position, AgentState> states) {
 		List<Position> list = new ArrayList<Position>();
 		int r = pos.getRow(); int c = pos.getColumn();
-		if(isValid(r-1, c, explored, nDyn, axe, boat)) list.add(new Position(r-1, c));
-		if(isValid(r, c+1, explored, nDyn, axe, boat)) list.add(new Position(r, c+1));
-		if(isValid(r+1, c, explored, nDyn, axe, boat)) list.add(new Position(r+1, c));
-		if(isValid(r, c-1, explored, nDyn, axe, boat)) list.add(new Position(r, c-1));
+		AgentState newState;
+		AgentState currentState = states.get(pos);
+		Position newPos;
+		
+		System.out.println(currentState);
+		if((newState = isValid(r-1, c, explored, currentState)) != null){
+			newPos = new Position(r-1, c);
+			list.add(newPos);
+			explored.put(newPos, 1);
+			states.put(newPos, newState);
+		}
+		if((newState = isValid(r, c+1, explored, currentState)) != null) {
+			newPos = new Position(r, c+1);
+			list.add(newPos);
+			explored.put(newPos, 1);
+			states.put(newPos, newState);
+		}
+		if((newState = isValid(r+1, c, explored, currentState)) != null) {
+			newPos = new Position(r+1, c);
+			list.add(newPos);
+			explored.put(newPos, 1);
+			states.put(newPos, newState);
+		}
+		if((newState = isValid(r, c-1, explored, currentState)) != null) {
+			newPos = new Position(r, c-1);
+			list.add(newPos);
+			explored.put(newPos, 1);
+			states.put(newPos, newState);
+		}
 		return list;
 	}
 
-	private boolean isValid(int r, int c, Map<Position, Integer> explored, 
-							Integer nDyn, Boolean axe, Boolean boat) {
+	//returns the new state if this position is valid and null otherwise
+	private AgentState isValid(int r, int c, Map<Position, Integer> explored, AgentState currentState) {
 		WorldMap map = agent.map;
-		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return false;
-		if(explored.containsKey(new Position(r, c))) return false;
+		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return null;
+		if(explored.containsKey(new Position(r, c))) return null;
+	
+		AgentState newState = new AgentState(currentState);
 		switch(map.getCharAt(r, c)) {
-		case '~': return boat;
+		case '.': return null;
+		case ' ': 
+			if(currentState.boat) {newState.boat = false;}
+			break;
+		case '~': 
+			if(!currentState.boat) newState = null;
+			break;
 		case 'T':
-			if(axe) return true;
-			return (nDyn-- > 0);
-		case '*': return nDyn-- > 0;
-		case 'B': return (boat = true);
-		case 'd': return (++nDyn > 0);
-		case 'a': return (axe = true);
-		case '.': return false;
-		case ' ': return true;
-		default: return false;
+			if(currentState.boat) newState.boat = false;
+			if(currentState.axe) return newState;
+			else if(currentState.dynamites > 0) {newState.dynamites--;}
+			break;
+		case '*':
+			if(currentState.boat) newState.boat = false;
+			if(currentState.dynamites > 0) {newState.dynamites--;}
+			break;
+		case 'B':	newState.boat = true; break;
+		case 'd': 
+			if(currentState.boat) newState.boat = false;
+			if(currentState.dynamites > 0) {newState.dynamites++;}
+			break;
+		case 'a':
+			if(currentState.boat) newState.boat = false;
+			newState.axe = true;
+			break;
+		default: newState = null;
 		}
+		return newState;
 	}
 //		if(map.getCharAt(r, c) == '.' || map.getCharAt(r, c) == '?') 
 //			return false;
@@ -231,38 +307,40 @@ public class TourGuide {
 		return false;
 	}
 	
+	
+	
 //	public List<Position> findPath(Position a, Position b) {
-//	Map<Position, Integer> list = new HashMap<Position, Integer>();
-//	Map<Position, Integer> explored = new HashMap<Position, Integer>();
-//	Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
-//	List<Position> path = new ArrayList<Position>();
-//	Position current = null;
-//	list.put(a, 0);
-//	explored.put(a, 1);
-//	parent.put(a, a);
-//	while(!list.isEmpty() && !(current = getBestPosition(list)).equals(b)) {
-//		for(Position pos : getValidNeighbours(current)) {
-//			if(explored.get(pos) == null) {
-//				explored.put(pos, 1);
-//				list.put(pos, list.get(current) + pos.distance(b));
-//				parent.put(pos, current);
+//		Map<Position, Integer> list = new HashMap<Position, Integer>();
+//		Map<Position, Integer> explored = new HashMap<Position, Integer>();
+//		Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
+//		List<Position> path = new ArrayList<Position>();
+//		Position current = null;
+//		list.put(a, 0);
+//		explored.put(a, 1);
+//		parent.put(a, a);
+//		while(!list.isEmpty() && !(current = getBestPosition(list)).equals(b)) {
+//			for(Position pos : getValidNeighbours(current)) {
+//				if(explored.get(pos) == null) {
+//					explored.put(pos, 1);
+//					list.put(pos, list.get(current) + pos.distance(b));
+//					parent.put(pos, current);
+//				}
 //			}
+//			list.remove(current);
 //		}
-//		list.remove(current);
-//	}
-//	for(Position p : parent.keySet()) {
-//		p.print();
-//		System.out.print("\t\t");
-//		parent.get(p).print();
-//	}
+//		for(Position p : parent.keySet()) {
+//			p.print();
+//			System.out.print("\t\t");
+//			parent.get(p).print();
+//		}
 //
-//	//current = b;
-//	path.add(current);
-//	do {
-//		current = parent.get(current);
+//		//current = b;
 //		path.add(current);
-//	} while(!current.equals(a));
-//	Collections.reverse(path);
-//	return path;
-//}
+//		do {
+//			current = parent.get(current);
+//			path.add(current);
+//		} while(!current.equals(a));
+//		Collections.reverse(path);
+//		return path;
+//	}
 }
