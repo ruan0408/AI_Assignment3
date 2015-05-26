@@ -30,6 +30,11 @@ public class Position {
 	public void print() {
 		System.out.println("x: "+row+", y: "+column);
 	}
+	
+	@Override
+	public String toString() {
+		return "x: "+row+", y: "+column;
+	}
 
 	@Override
 	public boolean equals(Object b) {
