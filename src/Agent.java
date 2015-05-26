@@ -12,7 +12,7 @@ public class Agent {
 
 	private boolean hasAxe;
 	private boolean hasGold;
-	private boolean isOnBoat;
+	private boolean onBoat;
 	private int numberOfDynamites;
 
 	private Position myPos;
@@ -26,21 +26,21 @@ public class Agent {
 		myPos = new Position(79, 79);
 		ori = Orientation.SOUTH;
 		guide = new TourGuide(this);
-		hasAxe = hasGold = isOnBoat = false;
+		hasAxe = hasGold = onBoat = false;
 		numberOfDynamites = 0;
 	}
 	
 	public Position getPosition(){return myPos;}
 	public Orientation getOrientation(){return ori;}
-	public void setHasGold(boolean b){hasGold = b;}
+	public void setGold(){hasGold = true;}
 	public boolean hasGold(){return hasGold;}
-	public boolean hasAxe(){return hasAxe;}
-	public boolean hasDynamite(){return numberOfDynamites != 0;}
-	public void addDynamite(){numberOfDynamites++;}
-	public int numberDynamites(){return numberOfDynamites;}
 	public void setAxe(){hasAxe = true;}
-	public boolean isOnBoat(){return isOnBoat;}
-	public void setOnBoat(Boolean b){isOnBoat = b;}
+	public boolean hasAxe(){return hasAxe;}
+	public void addDynamite(){numberOfDynamites++;}
+	public boolean hasDynamite(){return numberOfDynamites != 0;}
+	public int numberDynamites(){return numberOfDynamites;}
+	public boolean onBoat(){return onBoat;}
+	public void setOnBoat(Boolean b){onBoat = b;}
 
 	public char get_action( char view[][] ) {
 		char action;
@@ -52,47 +52,83 @@ public class Agent {
 		map.update(view, ori, myPos);
 		//map.print();
 		action = guide.next();
-
-		try {
-			updateState(action);
-			Thread.sleep(3);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+		updateState(action);
 		return action;
 	}
 
-	private void updateState(char action) throws Exception {
+	private void updateState(char action) {
+		char frontTile = map.getFrontTile(myPos, ori);
+		char currentTile = map.getCharAt(myPos);
 		switch(action) {
 		case 'L':
 			ori = ori.next(1); break;
 		case 'R':
 			ori = ori.next(3); break;
+		case 'C':
+			if(frontTile == 'T') 
+				map.setFrontTile(myPos, ori, ' ');
+			break;
+		case 'B':
+			if(frontTile == 'T'|| frontTile == '*') 
+				map.setFrontTile(myPos, ori, ' ');
+			break;
 		case 'F':
+			//System.out.println(onBoat());
 			if(!allowedToMove()) return;
+			switch(frontTile) {
+			case 'B': 
+				setOnBoat(true);
+				goForward();
+				break;
+			case '~':
+				goForward();
+				break;
+			case 'a': 
+				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setAxe();
+				goForward();
+				break;
+			case 'd': 
+				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				addDynamite();
+				goForward();
+				break;
+			case 'g': 
+				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				setGold();
+				goForward();
+				break;
+			case ' ': 
+				if(!onBoat() || currentTile != '~') setOnBoat(false);
+				goForward();
+				break;
+			default: System.out.println("DEFAULT TILE HAPPENED");
+			}
+			break;
+		default: System.out.println("DEFAULT ACTION HAPPENED");
+		}
+	}
+	
+	private void goForward() {
+		try {
 			switch(ori) {
 			case EAST: 	myPos.incrementColumn(1); 	break;
 			case NORTH: myPos.incrementRow(-1); 	break;
 			case WEST: 	myPos.incrementColumn(-1); 	break;
 			case SOUTH: myPos.incrementRow(1); 		break;
 			}
-		case 'C':
-			if(map.getFrontTile(myPos, ori) == 'T') 
-				map.setFrontTile(myPos, ori, ' ');
-			break;
-		case 'B':
-			if(map.getFrontTile(myPos, ori) == '*') 
-				map.setFrontTile(myPos, ori, ' ');
-			break;
+		} catch(Exception e) {
+			e.printStackTrace(System.out);
 		}
 	}
 
 	private boolean allowedToMove() {
-		if(map.getFrontTile(myPos, ori) == '*' || 
-				(map.getFrontTile(myPos, ori) == 'T'))
-			return false;
-		return true;
+		char frontTile = map.getFrontTile(myPos, ori);
+		//System.out.println("allowed "+onBoat());
+		if(frontTile == ' ' || frontTile == 'd' || frontTile == 'a' || 
+		   frontTile == 'B' || frontTile == 'g' || (frontTile == '~' && onBoat())) 
+			return true;
+		return false;
 	}
 	
 	public char getFrontTile() {

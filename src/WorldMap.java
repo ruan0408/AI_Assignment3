@@ -13,7 +13,7 @@ public class WorldMap {
 	private List<Resource> dynamites = new LinkedList<Resource>();
 	private Resource gold = null;
 	private Resource axe = null;
-	private List<Resource> boats = new LinkedList<Resource>();
+	private List<Resource> boats = new ArrayList<Resource>();
 
 	public WorldMap(char[][] map) {
 		this.map = map;
@@ -23,11 +23,12 @@ public class WorldMap {
 	public int columns() {return map[0].length;}
 	public void setCharAt(int row, int column, char c) {map[row][column] = c;}
 	public char getCharAt(int row, int column) {return map[row][column];}
-	public boolean hasBoat() {return !boats.isEmpty();}
-	public Position closestBoat(){
-		if(!boats.isEmpty()) return boats.get(0).getPosition();
-		return null;
-	}
+	public char getCharAt(Position p){return map[p.getRow()][p.getColumn()];}
+//	public boolean hasBoat() {return !boats.isEmpty();}
+//	public Position closestBoat(){
+//		if(!boats.isEmpty()) return boats.get(0).getPosition();
+//		return null;
+//	}
 	
 	public boolean isUnknown(int row, int column) throws ArrayIndexOutOfBoundsException{
 		return getCharAt(row, column) == '?';
@@ -62,74 +63,18 @@ public class WorldMap {
 						addResource(tile, r-2+i, c-2+j);
 				}
 			}
+		updateResources();
 	}
-
-//	public List<Position> findPath(Position a, Position b) { a.print();
-//		java.util.Map<Position, Integer> list = new HashMap<Position, Integer>();
-//		java.util.Map<Position, Integer> explored = new HashMap<Position, Integer>();
-//		java.util.Map<Position, Position> parent  = new HashMap<Position, Position>(); //child father
-//		List<Position> path = new ArrayList<Position>();
-//		Position current = null;
-//		list.put(a, 0);
-//		explored.put(a, 1);
-//		parent.put(a, a);
-//		while(!list.isEmpty() && !(current = getBestPosition(list)).equals(b)) {
-//			for(Position pos : getValidNeighbours(current)) {
-//				if(explored.get(pos) == null) {
-//					explored.put(pos, 1);
-//					list.put(pos, list.get(current) + pos.distance(b));
-//					parent.put(pos, current);
-//				}
-//			}
-//			list.remove(current);
-//		}
-//		for(Position p : parent.keySet()) {
-//			p.print();
-//			System.out.print("\t\t");
-//			parent.get(p).print();
-//		}
-//			
-//		//current = b;
-//		path.add(current);
-//		do {
-//			current = parent.get(current);
-//			path.add(current);
-//		} while(!current.equals(a));
-//		Collections.reverse(path);
-//		return path;
-//	}
-//
-//	// If necessary, can be improved using a priority queue
-//	private Position getBestPosition(java.util.Map<Position, Integer> list) {
-//		Set<Entry<Position, Integer>> entries = list.entrySet();
-//		int min = Integer.MAX_VALUE;
-//		Position best = null;
-//		for(Entry<Position, Integer> entry : entries)
-//			if(entry.getValue() < min) { 
-//				min = entry.getValue();
-//				best = entry.getKey();
-//			}
-//		return best;
-//	}
-//
-//	private List<Position> getValidNeighbours(Position pos) {
-//		List<Position> list = new ArrayList<Position>();
-//		int r = pos.getRow(); int c = pos.getColumn();
-//		if(isValid(r-1, c)) list.add(new Position(r-1, c));
-//		if(isValid(r, c+1)) list.add(new Position(r, c+1));
-//		if(isValid(r+1, c)) list.add(new Position(r+1, c));
-//		if(isValid(r, c-1)) list.add(new Position(r, c-1));
-//		return list;
-//	}
-//
-//	private boolean isValid(int r, int c) {
-//		if(r >= 0 && r < rows() && c >= 0 && c < columns() && 
-//				getCharAt(r, c) != '.' && getCharAt(r, c) != '*' &&
-//				getCharAt(r, c) != 'T' && getCharAt(r, c) != '?' && 
-//				getCharAt(r, c) != '~')
-//			return true;
-//		return false;
-//	}
+	
+	private void updateResources() {
+		if(gold != null && getCharAt(getGoldPosition()) != 'g')
+			removeGold();
+		if(axe != null && getCharAt(getAxePostion()) != 'a')
+			removeAxe();
+		for(Position p : getDynamitePostions())
+			if(getCharAt(p) != 'd') removeDynamite(p);
+			
+	}
 
 	private boolean isResource(char c)	{
 		if( c == 'd' || c == 'a' || c == 'g' || c == 'B')
@@ -142,14 +87,12 @@ public class WorldMap {
 		case 'd': dynamites.add(new Resource(r,c)); break;
 		case 'a': axe = new Resource(r,c); break;
 		case 'g': gold = new Resource(r,c); break;
-		case 'B': boats.add(new Resource(r,c)); break;
 		default: break;
 		}
 	}
 
-	public void removeGold(){
-		gold = null;
-	}
+	public void removeGold(){gold = null;}
+	public void removeAxe(){axe = null;}
 
 	public void removeDynamite(Position pos){
 		for(Resource d: dynamites)
@@ -169,12 +112,12 @@ public class WorldMap {
 		return axe.getPosition();
 	}
 
-	public List<Position> getBoatPostion(){
-		List<Position> boatPositions = new LinkedList<Position>();
-		for(Resource b : boats)
-			boatPositions.add(b.getPosition());
-		return boatPositions;
-	}
+//	public List<Position> getBoatPostion(){
+//		List<Position> boatPositions = new LinkedList<Position>();
+//		for(Resource b : boats)
+//			boatPositions.add(b.getPosition());
+//		return boatPositions;
+//	}
 
 	public List<Position> getDynamitePostions(){
 		List<Position> dynamitesPositions = new LinkedList<Position>();
@@ -182,6 +125,13 @@ public class WorldMap {
 			dynamitesPositions.add(d.getPosition());
 		return dynamitesPositions;
 	}
+	
+//	public List<Position> getBoatPositions() {
+//		List<Position> boatPositions = new ArrayList<Position>();
+//		for(Resource b : boats)
+//			boatPositions.add(b.getPosition());
+//		return boatPositions;
+//	}
 
 	public void fill(char c) {
 		for(char[] row : map) 
