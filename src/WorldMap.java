@@ -63,7 +63,7 @@ public class WorldMap {
 		for(int i = 0; i < viewMap.rows() ; i++)
 			for(int j = 0; j < viewMap.columns(); j++) {
 				if(i == 2 && j == 2) 
-					setCharAt(r, c, ' ');
+					setCharAt(r, c, getMe(ori));
 				else{
 					char tile =  viewMap.getCharAt(i, j);
 					setCharAt(r-2+i, c-2+j, tile);
@@ -129,13 +129,6 @@ public class WorldMap {
 		return axe.getPosition();
 	}
 
-//	public List<Position> getBoatPostion(){
-//		List<Position> boatPositions = new LinkedList<Position>();
-//		for(Resource b : boats)
-//			boatPositions.add(b.getPosition());
-//		return boatPositions;
-//	}
-
 	public List<Position> getDynamitePostions(){
 		List<Position> dynamitesPositions = new LinkedList<Position>();
 		for(Resource d : dynamites)
@@ -149,13 +142,6 @@ public class WorldMap {
 			treePositions.add(d.getPosition());
 		return treePositions;
 	}
-	
-//	public List<Position> getBoatPositions() {
-//		List<Position> boatPositions = new ArrayList<Position>();
-//		for(Resource b : boats)
-//			boatPositions.add(b.getPosition());
-//		return boatPositions;
-//	}
 
 	public void fill(char c) {
 		for(char[] row : map) 
@@ -220,4 +206,14 @@ public class WorldMap {
 		}
 		map[r][c] = ch;
 	}
+	
+	private char getMe(Orientation ori) {
+		switch(ori) {
+		case NORTH: return '^';
+		case WEST: 	return '<';
+		case SOUTH: return 'v';
+		case EAST:	return '>';
+		default: 	return 'e';
+	}
+}
 }

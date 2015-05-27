@@ -32,7 +32,7 @@ public class Agent {
 		numberOfDynamites = 0;
 	}
 	
-	public Position getPosition(){return myPos;}
+	public Position getPosition(){return new Position(myPos.getRow(), myPos.getColumn());}
 	public Position getInitialPosition(){return initialPosition;}
 	public Orientation getOrientation(){return ori;}
 	public void setGold(){hasGold = true;}
@@ -40,7 +40,7 @@ public class Agent {
 	public void setAxe(){hasAxe = true;}
 	public boolean hasAxe(){return hasAxe;}
 	public void addDynamite(){numberOfDynamites++;}
-	public void useDynamite(){numberOfDynamites = numberOfDynamites > 0 ? numberOfDynamites-- : 0;}
+	public void useDynamite(){numberOfDynamites = numberOfDynamites > 0 ? --numberOfDynamites : 0;}
 	public boolean hasDynamite(){return numberOfDynamites != 0;}
 	public int numberDynamites(){return numberOfDynamites;}
 	public boolean onBoat(){return onBoat;}
@@ -53,7 +53,7 @@ public class Agent {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		map.update(view, ori, myPos);
+		map.update(view, ori, getPosition());
 		map.print();
 		action = guide.next();
 		updateState(action);
@@ -62,19 +62,23 @@ public class Agent {
 
 	private void updateState(char action) {
 		char frontTile = map.getFrontTile(myPos, ori);
-		char currentTile = map.getCharAt(myPos);
+		//char currentTile = map.getCharAt(myPos);
 		switch(action) {
-		case 'L':
-			ori = ori.next(1); break;
-		case 'R':
-			ori = ori.next(3); break;
 		case 'C':
-			if(frontTile == 'T') 
-				map.setFrontTile(myPos, ori, ' ');
+			//if(frontTile == 'T') 
+				//map.setFrontTile(myPos, ori, ' ');
 			break;
 		case 'B':
-			if(frontTile == 'T'|| frontTile == '*') 
-				map.setFrontTile(myPos, ori, ' ');
+			System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO DYNAMITEEEEEEEEEEEEEE");
+			useDynamite();
+			break;
+			//if(frontTile == 'T'|| frontTile == '*') 
+				//map.setFrontTile(myPos, ori, ' ');
+		case 'L':
+			ori = ori.next(1);
+			break;
+		case 'R':
+			ori = ori.next(3); 
 			break;
 		case 'F':
 			if(!allowedToMove()) return;
@@ -116,8 +120,8 @@ public class Agent {
 				goForward();
 				break;
 			default: System.out.println("DEFAULT TILE HAPPENED");
-			}
 			break;
+			}
 		default: System.out.println("DEFAULT ACTION HAPPENED");
 		}
 	}
@@ -151,16 +155,6 @@ public class Agent {
 	public char getFrontTile() {
 		return map.getFrontTile(myPos, ori);
 	}
-
-//	private char getMe() {
-//		switch(ori) {
-//		case NORTH: return '^';
-//		case WEST: 	return '<';
-//		case SOUTH: return 'v';
-//		case EAST:	return '>';
-//		default: 	return 'e';
-//		}
-//	}
 
 	void print_view( char view[][] )
 	{
