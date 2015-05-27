@@ -30,39 +30,38 @@ public class TourGuide {
 		Position axe = map.getAxePostion();
 		List<Position> dynamites = map.getDynamitePostions();
 		//Position agentPosition = agent.getPosition();
+		
 		try {
 			Thread.sleep(20);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Do I think I have the gold?: "+agent.hasGold());
+		System.out.println("Do I think I'm in a boat?: "+agent.onBoat());
 		if(!path.isEmpty()) return path.remove(0);
-		return explore();
-//		if(gold == null) {
-//			if(!agent.hasAxe() && axe != null) 
-//				return setPathAndAct(getActionsToPosition(axe));
-//			if(agent.numberDynamites() < 3 && dynamites.size() != 0)
-//				return setPathAndAct(getActionsToPosition(dynamites.get(0)));
-//			
-//			return explore();
-//		} else {
-//			return setPathAndAct(getActionsToPosition(gold));
-//		}
-	}	
-//		if(gold != null && !gold.equals(agentPosition)) {
-//			path = getActionsToPosition(gold);
-//			for(Character a : path) System.out.println(a);
-//			action = path.remove(0);
-//		} else if(gold != null && gold.equals(agentPosition)){
-//			agent.setHasGold(true);
-//			map.removeGold();
-//			path = getActionsToPosition(new Position(79,79));
-//			action = path.remove(0);
-//		} else {
-//					
-//		}
+		if(agent.hasGold()) {
+			return setPathAndAct(getActionsToPosition(agent.getInitialPosition()));
+		}
+		if(gold == null) {
+			if(!agent.hasAxe() && axe != null) 
+				return setPathAndAct(getActionsToPosition(axe));
+			if(agent.numberDynamites() < 3 && dynamites.size() != 0)
+				return setPathAndAct(getActionsToPosition(dynamites.get(0)));
+			return explore();
+		}
+		else {
+			System.out.println("aeuhuaehuahea");
+			return setPathAndAct(getActionsToPosition(gold));
+			//System.exit(-1);
+		}
+	}
 	
 	private char explore() {
+		Position tree = agent.map.randomTree();
+		if(agent.hasAxe() && tree != null)
+			return setPathAndAct(getActionsToPosition(tree));
+		
 		border.addAll(findUnexploredBorder());
 		Iterator<Position> it = border.iterator();
 		int i = random.nextInt(border.size());
@@ -74,14 +73,16 @@ public class TourGuide {
 	
 	private char setPathAndAct(List<Character> actions) {
 		path = actions;
-		//System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
+		System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
 		return path.remove(0);
 	}
 	
 	private List<Character> getActionsToPosition(Position end) {
-//		List<Position> l = findPath(agent.getPosition(), end);
-//		for(Position p : l)
-//			System.out.println("\t\t "+ p.toString());
+		System.out.println("My position: "+agent.getPosition().toString());
+		System.out.println("End tile: "+ agent.map.getCharAt(end));
+		System.out.println("Going to: "+ end.toString());
+		List<Position> l = findPath(agent.getPosition(), end);
+		for(Position p : l) System.out.println("\t\t "+ p.toString());
 		return pathToActions(findPath(agent.getPosition(), end));
 	}
 		
@@ -97,11 +98,11 @@ public class TourGuide {
 		f.put(start, start.distance(end));
 		explored.put(start, 1);
 		parent.put(start, start);
-		AgentState s = new AgentState(agent.hasAxe(), agent.onBoat(), agent.numberDynamites());
+		AgentState s = new AgentState(agent.hasAxe(), agent.onBoat(), agent.hasGold(), agent.numberDynamites());
 		states.put(start, s);
 		
 		while(!f.isEmpty() && !(current = getBestPosition(f)).equals(end)) {
-			current.print();
+			//current.print();
 			for(Position candPos : getValidNeighbours(current, explored, states)) {
 				g.put(candPos, g.get(current)+1);
 				f.put(candPos, g.get(candPos) + candPos.distance(end));
@@ -204,6 +205,10 @@ public class TourGuide {
 			newState.boat = false;
 			newState.axe = true;
 			break;
+		case 'g':
+			newState.boat = false;
+			newState.gold = true;
+			break;
 		default:
 			newState = null;
 		}
@@ -229,10 +234,17 @@ public class TourGuide {
 		String actions = "C";//useless action for avoiding exceptions
 		Position current = agent.getPosition();
 		Orientation currentOri = agent.getOrientation();
+		char tile;
 		for(Position pos : list) {
+			tile = agent.map.getCharAt(pos);
+			
+			if(tile == 'T' && agent.hasAxe()) actions += "C";
+			else if(tile == 'T' && agent.hasDynamite()) actions += "B";
+			if(tile == '*') actions += "B";
+			
 			if(getSidePosition(current, Orientation.NORTH, currentOri).equals(pos)) 
 				actions += "F";
-			else if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
+			if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
 				actions += "RRF";
 				currentOri = currentOri.next(2);
 			}

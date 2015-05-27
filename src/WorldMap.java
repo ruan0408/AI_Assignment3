@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 public class WorldMap {
@@ -13,7 +14,9 @@ public class WorldMap {
 	private List<Resource> dynamites = new LinkedList<Resource>();
 	private Resource gold = null;
 	private Resource axe = null;
-	private List<Resource> boats = new ArrayList<Resource>();
+	//private List<Resource> boats = new ArrayList<Resource>();
+	private List<Resource> trees = new ArrayList<Resource>();
+	private Random random = new Random();
 
 	public WorldMap(char[][] map) {
 		this.map = map;
@@ -29,6 +32,11 @@ public class WorldMap {
 //		if(!boats.isEmpty()) return boats.get(0).getPosition();
 //		return null;
 //	}
+	public Position randomTree() {
+		if(trees.isEmpty()) return null;
+		int i = random.nextInt(trees.size());
+		return trees.get(i).getPosition();
+	}
 	
 	public boolean isUnknown(int row, int column) throws ArrayIndexOutOfBoundsException{
 		return getCharAt(row, column) == '?';
@@ -73,11 +81,13 @@ public class WorldMap {
 			removeAxe();
 		for(Position p : getDynamitePostions())
 			if(getCharAt(p) != 'd') removeDynamite(p);
+		for(Position p : getTreePostions())
+			if(getCharAt(p) != 'T') removeTree(p);
 			
 	}
 
 	private boolean isResource(char c)	{
-		if( c == 'd' || c == 'a' || c == 'g' || c == 'B')
+		if( c == 'd' || c == 'a' || c == 'g' || c == 'B' || c == 'T')
 			return true;
 		return false;
 	}
@@ -85,6 +95,7 @@ public class WorldMap {
 	private void addResource(char tile, int r, int c) {
 		switch(tile) {
 		case 'd': dynamites.add(new Resource(r,c)); break;
+		case 'T': trees.add(new Resource(r,c)); break;
 		case 'a': axe = new Resource(r,c); break;
 		case 'g': gold = new Resource(r,c); break;
 		default: break;
@@ -95,9 +106,15 @@ public class WorldMap {
 	public void removeAxe(){axe = null;}
 
 	public void removeDynamite(Position pos){
-		for(Resource d: dynamites)
-			if (d.getPosition().equals(pos))
-				dynamites.remove(d);
+		for(int i = 0; i < dynamites.size(); i++)
+			if(dynamites.get(i).getPosition().equals(pos))
+				dynamites.remove(i);
+	}
+	
+	public void removeTree(Position pos){
+		for(int i = 0; i < trees.size(); i++)
+			if(trees.get(i).getPosition().equals(pos))
+				trees.remove(i);
 	}
 
 	public Position getGoldPosition(){
@@ -124,6 +141,13 @@ public class WorldMap {
 		for(Resource d : dynamites)
 			dynamitesPositions.add(d.getPosition());
 		return dynamitesPositions;
+	}
+	
+	public List<Position> getTreePostions(){
+		List<Position> treePositions = new ArrayList<Position>();
+		for(Resource d : trees)
+			treePositions.add(d.getPosition());
+		return treePositions;
 	}
 	
 //	public List<Position> getBoatPositions() {

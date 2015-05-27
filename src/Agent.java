@@ -15,6 +15,7 @@ public class Agent {
 	private boolean onBoat;
 	private int numberOfDynamites;
 
+	private Position initialPosition;
 	private Position myPos;
 	private Orientation ori;
 	protected WorldMap map;
@@ -24,6 +25,7 @@ public class Agent {
 		map = new WorldMap(new char[160][160]);
 		map.fill('?');
 		myPos = new Position(79, 79);
+		initialPosition = new Position(79, 79);
 		ori = Orientation.SOUTH;
 		guide = new TourGuide(this);
 		hasAxe = hasGold = onBoat = false;
@@ -31,12 +33,14 @@ public class Agent {
 	}
 	
 	public Position getPosition(){return myPos;}
+	public Position getInitialPosition(){return initialPosition;}
 	public Orientation getOrientation(){return ori;}
 	public void setGold(){hasGold = true;}
 	public boolean hasGold(){return hasGold;}
 	public void setAxe(){hasAxe = true;}
 	public boolean hasAxe(){return hasAxe;}
 	public void addDynamite(){numberOfDynamites++;}
+	public void useDynamite(){numberOfDynamites = numberOfDynamites > 0 ? numberOfDynamites-- : 0;}
 	public boolean hasDynamite(){return numberOfDynamites != 0;}
 	public int numberDynamites(){return numberOfDynamites;}
 	public boolean onBoat(){return onBoat;}
@@ -50,7 +54,7 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, myPos);
-		//map.print();
+		map.print();
 		action = guide.next();
 		updateState(action);
 		return action;
@@ -75,6 +79,16 @@ public class Agent {
 		case 'F':
 			if(!allowedToMove()) return;
 			switch(frontTile) {
+			case 'T': 
+				setOnBoat(false);
+				if(!hasAxe()) useDynamite();
+				goForward();
+				break;
+			case '*': 
+				setOnBoat(false);
+				useDynamite();
+				goForward();
+				break;
 			case 'B': 
 				setOnBoat(true);
 				goForward();
@@ -123,9 +137,14 @@ public class Agent {
 
 	private boolean allowedToMove() {
 		char frontTile = map.getFrontTile(myPos, ori);
+		System.out.println(onBoat());
 		if(frontTile == ' ' || frontTile == 'd' || frontTile == 'a' || 
-		   frontTile == 'B' || frontTile == 'g' || (frontTile == '~' && onBoat())) 
+		   frontTile == 'B' || frontTile == 'g' || (frontTile == '~' && onBoat()) ||
+		   (frontTile == 'T' && (hasAxe() || hasDynamite())) ||
+		   (frontTile == '*' && hasDynamite())) {
+			System.out.println("AUEHUAHEUHEA");
 			return true;
+		}
 		return false;
 	}
 	
