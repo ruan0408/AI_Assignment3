@@ -64,17 +64,20 @@ public class TourGuide {
 //		} while(isAgentGoingToDie(a));
 //		return a;
 		if(!path.isEmpty()) return path.remove(0);
-		return explore();
-//		if(agent.hasGold()) {
-//			return setPathAndAct(getActionsToPosition(agent.getInitialPosition()));
-//		}
-//		if(gold == null) {
-//			if(!agent.hasAxe() && axe != null) 
-//				return setPathAndAct(getActionsToPosition(axe));
-//			if(agent.numberDynamites() < 3 && dynamites.size() != 0)
-//				return setPathAndAct(getActionsToPosition(dynamites.get(0)));
-//			return explore();
-//		}
+		
+		if(agent.hasGold()) {
+			return setPathAndAct(getActionsToPosition(agent.getInitialPosition()));
+		}
+		if(gold == null) {
+			if(!agent.hasAxe() && axe != null) 
+				return setPathAndAct(getActionsToPosition(axe));
+			if(agent.numberDynamites() < 3 && dynamites.size() != 0)
+				return setPathAndAct(getActionsToPosition(dynamites.get(0)));
+			return explore();
+		} else {
+			return setPathAndAct(getActionsToPosition(gold));
+		}
+//		return explore();
 //		else {
 //			System.out.println("aeuhuaehuahea");
 //			return setPathAndAct(getActionsToPosition(gold));
@@ -138,11 +141,12 @@ public class TourGuide {
 		}
 		
 		path.add(current);
-		do {
+		while(!current.equals(start)) {
 			current = parent.get(current);
 			path.add(current);
-		} while(!current.equals(start));
+		}
 		Collections.reverse(path);
+		path.remove(0);
 		return path;
 	}
 
@@ -267,6 +271,20 @@ public class TourGuide {
 		for(Position pos : list) {
 			tile = agent.map.getCharAt(pos);
 			
+			if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
+				actions += "RR";
+				currentOri = currentOri.next(2);
+			}
+			else if(getSidePosition(current, Orientation.EAST, currentOri).equals(pos)) { 
+				actions += "R";
+				currentOri = currentOri.next(3);
+			}
+			else if(getSidePosition(current, Orientation.WEST, currentOri).equals(pos)) {
+				actions += "L";
+				currentOri = currentOri.next(1);
+			}
+			
+			
 			if(tile == 'T' && axe) {
 				actions += "C";
 				boat = false;
@@ -281,26 +299,47 @@ public class TourGuide {
 				dynamites--;
 				boat = false;
 			}
-			if(tile == '~' && !boat) System.exit(-1);
+			actions += "F";
 			
 			if(tile == 'd') dynamites++;
 			if(tile == 'a') axe = true;
-			if(tile == 'B') boat = true;
 			
-			if(getSidePosition(current, Orientation.NORTH, currentOri).equals(pos)) 
-				actions += "F";
-			if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
-				actions += "RRF";
-				currentOri = currentOri.next(2);
-			}
-			else if(getSidePosition(current, Orientation.EAST, currentOri).equals(pos)) { 
-				actions += "RF";
-				currentOri = currentOri.next(3);
-			}
-			else if(getSidePosition(current, Orientation.WEST, currentOri).equals(pos)) {
-				actions += "LF";
-				currentOri = currentOri.next(1);
-			}
+//			if(getSidePosition(current, Orientation.NORTH, currentOri).equals(pos)) 
+//				actions += "F";
+//			if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
+//				actions += "RCRCF";
+//				currentOri = currentOri.next(2);
+//			}
+//			else if(getSidePosition(current, Orientation.EAST, currentOri).equals(pos)) { 
+//				actions += "RCF";
+//				currentOri = currentOri.next(3);
+//			}
+//			else if(getSidePosition(current, Orientation.WEST, currentOri).equals(pos)) {
+//				actions += "LCF";
+//				currentOri = currentOri.next(1);
+//			}
+			
+			//if(tile == '~' && !boat) System.exit(-1);
+			
+			
+			//if(tile == 'B') boat = true;
+			
+			
+			
+//			if(getSidePosition(current, Orientation.NORTH, currentOri).equals(pos)) 
+//				actions += "F";
+//			if(getSidePosition(current, Orientation.SOUTH, currentOri).equals(pos)) { 
+//				actions += "RRF";
+//				currentOri = currentOri.next(2);
+//			}
+//			else if(getSidePosition(current, Orientation.EAST, currentOri).equals(pos)) { 
+//				actions += "RF";
+//				currentOri = currentOri.next(3);
+//			}
+//			else if(getSidePosition(current, Orientation.WEST, currentOri).equals(pos)) {
+//				actions += "LF";
+//				currentOri = currentOri.next(1);
+//			}
 			current = pos;
 		}
 		System.out.println(agent.getOrientation());

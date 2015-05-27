@@ -138,8 +138,8 @@ public class WorldMap {
 	
 	public List<Position> getTreePostions(){
 		List<Position> treePositions = new ArrayList<Position>();
-		for(Resource d : trees)
-			treePositions.add(d.getPosition());
+		for(Resource t : trees)
+			treePositions.add(t.getPosition());
 		return treePositions;
 	}
 

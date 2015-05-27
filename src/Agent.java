@@ -22,7 +22,7 @@ public class Agent {
 	private TourGuide guide;
 
 	public Agent() {
-		map = new WorldMap(new char[160][160]);
+		map = new WorldMap(new char[120][120]);
 		map.fill('?');
 		myPos = new Position(79, 79);
 		initialPosition = new Position(79, 79);
