@@ -1,6 +1,6 @@
 
 public enum Orientation {
-	EAST, NORTH, WEST, SOUTH;
+	EAST, NORTH, WEST, SOUTH, NULL;
 
 	public Orientation next(int n) {
 		switch((this.ordinal()+n)%4) {
@@ -8,7 +8,14 @@ public enum Orientation {
 		case 1: return NORTH;
 		case 2: return WEST;
 		case 3: return SOUTH;
-		default:return SOUTH;
+		default:return NULL;
 		}
+	}
+	
+	public static String difference(Orientation o1, Orientation o2) {
+		if(o1.next(1).equals(o2)) return "L";
+		if(o1.next(2).equals(o2)) return "LL";
+		if(o1.next(3).equals(o2)) return "R";
+		return "";
 	}
 }

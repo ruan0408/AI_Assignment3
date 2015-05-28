@@ -28,9 +28,9 @@ public class Position {
 	}
 
 	public void print() {
-		System.out.println("x: "+row+", y: "+column);
+		System.out.println("Position: row: "+row+", column: "+column);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "x: "+row+", y: "+column;
