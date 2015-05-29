@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MyState {
@@ -8,21 +7,14 @@ public class MyState {
 	private final int LEFT = 1;
 	private final int BACK = 2;
 	private final int RIGHT = 3;
-	//	private final static Boolean nullBool = null;
-	//	private final static Integer nullInt = -1;
-	//	private final static Position nullPos = new Position(-100, -100);
-	//	private final static Orientation nullOri = Orientation.NULL;
 
 	WorldMap map;
-
 	Boolean axe;
 	Boolean boat;
 	Boolean gold;
 	Integer dynamites;
 	Position position;
 	Orientation orientation;
-	//private Boolean cut;
-	//private Boolean blasted;
 
 	private int fValue;
 	private int gValue;
@@ -40,8 +32,6 @@ public class MyState {
 		gValue = fValue = 0;
 		this.map = map;
 		father = null;
-		//cut = false; 
-		//blasted = false;
 	}
 
 	public MyState(MyState prototype) {
@@ -49,30 +39,24 @@ public class MyState {
 		boat = prototype.boat();
 		gold = prototype.gold();
 		dynamites = prototype.dynamites();
-		position = prototype.getPosition();
-		orientation = prototype.orientation();
-		map = prototype.map;
-		//cut = prototype.cut;
-		//blasted = prototype.blasted;
+		position = new Position(prototype.row(), prototype.column());
+		orientation = prototype.orientation().next(0);
+		map = prototype.map.copy();
 	}
 
 	public MyState(Boolean axe, Boolean boat, Boolean gold, Integer dyn, 
-			Position pos, Orientation ori) {//Boolean blasted, Boolean cut) {
+					Position pos, Orientation ori) {
 		this.axe = axe;
 		this.boat = boat;
 		this.gold = gold;
 		this.dynamites = dyn;
 		position = pos;
 		orientation = ori;
-//		this.map = map;
 	}
 
 	public MyState copy() {
 		MyState child = new MyState(this); 
 		child.setFather(this);
-		child.map = map.copy();
-		//child.blasted = false;
-		//child.cut = false;
 		return child;
 	}
 	public int row(){return position.getRow();}
@@ -89,10 +73,10 @@ public class MyState {
 		return false;
 	}
 	public void addDynamite() {
-		if(dynamite()) dynamites++;
+		if(dynamites != null) dynamites++;
 	}
 	public void useDynamite() {
-		--dynamites;
+		if(dynamites != null) dynamites--;
 	}
 	public boolean axe() {
 		if(axe != null) return axe;
@@ -106,14 +90,7 @@ public class MyState {
 		if(boat != null) return boat;
 		return false;
 	}
-//	public boolean cut() {
-//		if(cut != null) return cut;
-//		return false;
-//	}
-//	public boolean blasted() {
-//		if(blasted != null) return blasted;
-//		return false;
-//	}
+
 	public void setBoat(boolean b){boat = b;}
 	public void setAxe(boolean b){axe = b;}
 	public void setGold(){gold = true;}
@@ -123,8 +100,6 @@ public class MyState {
 	public int getGValue(){return gValue;}
 	public void setFather(MyState father){this.father = father;}
 	public MyState getFather(){return father;}
-//	public void setCut(boolean b){cut = b;}
-//	public void setBlasted(boolean b){blasted = b;}
 	public int distance(MyState b) {
 		return Math.abs(row()-b.row())+Math.abs(column()-b.column());
 	}
@@ -134,15 +109,12 @@ public class MyState {
 		position.print();
 		System.out.println(pad+"FValue: "+fValue);
 		System.out.println(pad+"GValue: "+gValue);
-		if(father != null) System.out.println(pad+"Father: "+true);
-		else System.out.println(pad+"Father: "+false);
+		System.out.println(pad+"Father: "+father);
 		System.out.println(pad+"Axe: "+axe);
 		System.out.println(pad+"Dynamites: "+dynamites); 
 		System.out.println(pad+"Boat: "+boat);
 		System.out.println(pad+"Gold: "+gold);
-		if(orientation != null)System.out.println(pad+"Orientation: "+orientation);
-//		System.out.println(pad+"Cut: "+cut);
-//		System.out.println(pad+"Blasted: "+blasted);
+		System.out.println(pad+"Orientation: "+orientation);
 		System.out.println();
 	}
 
@@ -184,55 +156,56 @@ public class MyState {
 		MyState newState = copy();
 		newState.setPosition(new Position(r, c));
 
-		newState.updateOrientation();
-
 		char tile = newState.map.getCharAt(r, c);
+		
+		newState.updateOrientation();
+		
 		switch(tile) {
-		//		case '.':
-		//		case '?': return null;
 		case ' ':
+			if(boat()) newState.map.setCharAt(row(), column(), 'B');
 			newState.setBoat(false);
 			break;
-		case '~': 
+		case '~':
 			if(!newState.boat()) newState = null;
+			else newState.map.setCharAt(row(), column(), '~');
 			break;
 		case 'T':
 		case '*':
+			if(boat()) newState.map.setCharAt(row(), column(), 'B');
 			newState.setBoat(false);
-			newState.map.setCharAt(r, c, ' ');
-			//newState.map.updateResources();
-			if(!newState.canDestroyObstable(tile)) return null;
+			if(newState.canDestroyObstable(tile)) {
+				newState.map.setCharAt(r, c, ' ');
+			} else newState = null;
 			break;
 		case 'B':
 			newState.setBoat(true);
 			newState.map.setCharAt(r, c, ' ');
-			//newState.map.updateResources();
 			break;
 		case 'd': 
+			if(boat()) newState.map.setCharAt(row(), column(), 'B');
 			newState.setBoat(false);
 			newState.addDynamite();
 			newState.map.setCharAt(r, c, ' ');
-			//newState.map.updateResources();
 			break;
 		case 'a':
+			if(boat()) newState.map.setCharAt(row(), column(), 'B');
 			newState.setBoat(false);
 			newState.setAxe(true);
 			newState.map.setCharAt(r, c, ' ');
-			//newState.map.updateResources();
 			break;
 		case 'g':
+			if(boat()) newState.map.setCharAt(row(), column(), 'B');
 			newState.setBoat(false);
 			newState.setGold();
 			newState.map.setCharAt(r, c, ' ');
-			//newState.map.updateResources();
 			break;
-		default:
+		default://'?' and '.'
 			newState = null;
 		}
-
-		if(newState == null || visualized.contains(newState)) 
+	
+		if(newState == null || visualized.contains(newState))
 			return null;
-
+		
 		return newState;
 	}
 
@@ -250,20 +223,11 @@ public class MyState {
 	private boolean canDestroyObstable(char obst) {
 		switch(obst) {
 		case 'T': 	
-			if(axe()) {
-				return true;
-				
-			}
-			if(dynamite()) {
-				useDynamite(); 
-				return true;
-			}
+			if(axe()) {return true;}
+			if(dynamite()) {useDynamite();return true;}
 			break;
 		case '*':	
-			if(dynamite()) {
-				useDynamite(); 
-				return true;
-			}
+			if(dynamite()) {useDynamite(); return true;}
 			break;
 		default:	return false;
 		}
@@ -301,7 +265,7 @@ public class MyState {
 
 		if((equalT(axe, s.axe) && equalT(boat, s.boat) && equalT(gold, s.gold) &&
 				equalT(dynamites, s.dynamites) && position.equals(s.position) && 
-				equalT(orientation, s.orientation)))// && equalT(cut, s.cut) && equalT(blasted, s.blasted)))
+				equalT(orientation, s.orientation)))
 			return true;
 
 		return false;

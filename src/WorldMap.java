@@ -65,7 +65,7 @@ public class WorldMap {
 		for(int i = 0; i < viewMap.rows() ; i++)
 			for(int j = 0; j < viewMap.columns(); j++) {
 				if(i == 2 && j == 2) 
-					setCharAt(r, c, agentSymbol(ori));
+					setCharAt(r, c, ' ');
 				else{
 					char tile =  viewMap.getCharAt(i, j);
 					setCharAt(r-2+i, c-2+j, tile);

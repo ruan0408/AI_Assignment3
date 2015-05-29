@@ -46,11 +46,11 @@ public class TourGuide {
 		MyState goldState = MyState.goldState(gold);
 		MyState axeState = MyState.axeState(axe);
 		
-		agentState.print("");
-		System.out.println("Visualized gold: "+gold);
-		System.out.println("Seen dynamites: "+map.getDynamitePostions().size());
+//		agentState.print("");
+//		System.out.println("Visualized gold: "+gold);
+//		System.out.println("Seen dynamites: "+map.getDynamitePostions().size());
 	
-		if(!path.isEmpty()) return path.remove(0);
+		if(path != null && !path.isEmpty()) return path.remove(0);
 		if(agentState.gold()) {
 			System.out.println("ON MY WAY TO THE VICTORY===================================================================!!!");
 			return setPathAndAct(findActions(agentState, finalState, true, false));
@@ -78,6 +78,16 @@ public class TourGuide {
 		Position p = it.next();
 		System.out.println("Going to "+p.toString());
 		return setPathAndAct(getActionsToPosition(p));
+	}
+	
+	private char explore4() {
+		String a = "RLF";
+		char action = 0;
+		do {
+			action = a.charAt(random.nextInt(a.length()));
+		} while(isAgentGoingToDie(action));
+		
+		return action;
 	}
 
 	private char explore2() {
@@ -495,6 +505,8 @@ public class TourGuide {
 			for(MyState child : father.validChildrenStates(visualized)) {
 				//System.out.println("\t\t===========FIND ACTIONS INTERNAL LOOP=================");
 				if(!dyn && father.dynamites() > child.dynamites()) {
+					//System.out.println("UEHUAHEUAHE");
+					//System.exit(0);
 					visualized.add(child);
 					continue;
 				}

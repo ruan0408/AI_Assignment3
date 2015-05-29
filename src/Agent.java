@@ -53,12 +53,12 @@ public class Agent {
 	public char get_action( char view[][] ) {
 		char action;
 		try {
-			Thread.sleep(20);
+			Thread.sleep(10);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		map.update(view, ori, getPosition());
-		map.print();
+		//map.print();
 		action = guide.next();
 		updateState(action);
 		return action;
