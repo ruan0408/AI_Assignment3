@@ -50,6 +50,9 @@ public class TourGuide {
 	//		System.out.println("Visualized gold: "+gold);
 	//		System.out.println("Seen dynamites: "+map.getDynamitePostions().size());
 	
+	if(!visitedTiles.contains(agent.getPosition()))
+	    visitedTiles.add(agent.getPosition());
+
 	if(path != null && !path.isEmpty()) return path.remove(0);
 	if(agentState.gold()) {
 	    System.out.println("ON MY WAY TO THE VICTORY===================================================================!!!");
@@ -153,18 +156,18 @@ public class TourGuide {
 	for(int i = 0; i < 4; i++){
 	    Position b = map.getFrontPosition(current,OriFromInt(i));
 	    char tile = map.getCharAt(b.getRow(), b.getColumn());
-	    if(!isBorderTile(tile) && !visitedTiles.contains(b)){
+	    if(!visitedTiles.contains(b) && isWorthExplorin(b) && !frontier.contains(b)){
 		frontier.push(b);
-		visitedTiles.add(b);
+		//		visitedTiles.add(b);
 	    }
 	}
 	
 	Position p = frontier.poll();
 
-	while( (map.getCharAt(p.getRow(), p.getColumn()) == '~' && !agent.hasBeenOnBoat())){
-	    if(isWorthExplorin(p))
+	while( !canGetTo(p) || !isWorthExplorin(p) || visitedTiles.contains(p) ){
+	    if(isWorthExplorin(p) && !isSurroundedByRocks(p) || !visitedTiles.contains(p))
 	       frontier.add(p);
-	    p = frontier.poll();
+	    p = frontier.pop();
 	}
 
 	System.out.println("At: "+current.toString()+"\nGoing to: " + p.toString());
@@ -389,12 +392,38 @@ public class TourGuide {
 	return false;
     }
 
+    private boolean isSurroundedByRocks(Position p){
+	int r = p.getRow();
+	int c = p.getColumn();
+	char tile = agent.map.getCharAt(r,c);
+	if(tile == '*') return true;
+	for(int i = 0; i < 4; i++){
+	    tile = agent.map.getCharAt(p.getRow(), p.getColumn());
+	    if(tile != '*' && tile != '?')
+		return false;
+	}
+	return true;
+    }
+
+    private boolean canGetTo(Position p){
+	int i = p.getRow();
+	int j = p.getColumn();
+	char tile = agent.map.getCharAt(i,j);
+	if((tile == 'T' && !agent.hasAxe()) || (tile == '~' && !agent.hasBeenOnBoat()))
+	    return false;
+	
+	if(isSurroundedByRocks(p))
+	    return false;
+
+	return true;
+    }
+
     private boolean isWorthExplorin(Position p){
 	WorldMap map = agent.map;
 	int i = p.getRow();
 	int j = p.getColumn();
 	char tile = map.getCharAt(i,j);
-	return ((tile != '.') && (!isBorderTile(tile)) && willUncoverUnknow(p));
+	return ((tile != '.') /*&& (!isBorderTile(tile))*/ && willUncoverUnknow(p));
     }
 
     private List<Character> pathToActions(List<Position> list) {
