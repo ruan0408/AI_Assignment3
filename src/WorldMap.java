@@ -28,6 +28,17 @@ public class WorldMap {
 		int i = random.nextInt(trees.size());
 		return trees.get(i).getPosition();
 	}
+	
+	public WorldMap copy() {
+		char[][] newMap = new char[map.length][];
+		for(int i = 0; i < map.length; i++) {
+		  char[] aMatrix = map[i];
+		  int   aLength = aMatrix.length;
+		  newMap[i] = new char[aLength];
+		  System.arraycopy(aMatrix, 0, newMap[i], 0, aLength);
+		} 
+		return new WorldMap(newMap);
+	}
 
 	public boolean isUnknown(int row, int column) throws ArrayIndexOutOfBoundsException{
 		return getCharAt(row, column) == '?';
@@ -65,7 +76,7 @@ public class WorldMap {
 		updateResources();
 	}
 
-	private void updateResources() {
+	public void updateResources() {
 		if(gold != null && getCharAt(getGoldPosition()) != 'g')
 			removeGold();
 		if(axe != null && getCharAt(getAxePostion()) != 'a')
@@ -85,7 +96,9 @@ public class WorldMap {
 
 	private void addResource(char tile, int r, int c) {
 		switch(tile) {
-		case 'd': dynamites.add(new Resource(r,c)); break;
+		case 'd': 
+			if(!getDynamitePostions().contains(new Position(r, c))) 
+				dynamites.add(new Resource(r,c)); break;
 		case 'T': trees.add(new Resource(r,c)); break;
 		case 'a': axe = new Resource(r,c); break;
 		case 'g': gold = new Resource(r,c); break;
