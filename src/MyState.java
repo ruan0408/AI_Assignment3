@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MyState {
 
@@ -45,7 +46,7 @@ public class MyState {
 	}
 
 	public MyState(Boolean axe, Boolean boat, Boolean gold, Integer dyn, 
-					Position pos, Orientation ori) {
+			Position pos, Orientation ori) {
 		this.axe = axe;
 		this.boat = boat;
 		this.gold = gold;
@@ -59,6 +60,29 @@ public class MyState {
 		child.setFather(this);
 		return child;
 	}
+	
+	public static MyState treeState(Position pos) {
+		MyState s = new MyState(true, null, null, null, pos, null);
+		return s;
+	}
+
+	public static MyState borderState(Position pos) {
+		MyState s = new MyState(null, null, null, null, pos, null);
+		return s;
+	}
+
+	public static MyState goldState(Position gold) {
+		return new MyState(null, null, true, null, gold, null);
+	}
+
+	public static MyState axeState(Position axe) {
+		return new MyState(true, null, true, null, axe, null);
+	}
+
+	public static MyState finalState() {
+		return new MyState(null, null, true, null, new Position(79, 79), null);
+	}
+	
 	public int row(){return position.getRow();}
 	public int column(){return position.getColumn();}
 	public Position getPosition() {return position;}
@@ -118,7 +142,7 @@ public class MyState {
 		System.out.println();
 	}
 
-	public List<MyState> validChildrenStates(List<MyState>visualized) {
+	public List<MyState> validChildrenStates(Set<MyState>visualized) {
 		List<MyState> list = new ArrayList<MyState>();
 		MyState child;
 
@@ -137,7 +161,7 @@ public class MyState {
 		return list;
 	}
 
-	private MyState getState(int side, List<MyState> visualized) {
+	private MyState getState(int side, Set<MyState> visualized) {
 		int r = row();
 		int c = column();
 		MyState neighbor = null;
@@ -150,16 +174,16 @@ public class MyState {
 		return neighbor;
 	}
 
-	private MyState setUp(int r, int c, List<MyState> visualized) {
+	private MyState setUp(int r, int c, Set<MyState> visualized) {
 		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return null;
 
 		MyState newState = copy();
 		newState.setPosition(new Position(r, c));
 
 		char tile = newState.map.getCharAt(r, c);
-		
+
 		newState.updateOrientation();
-		
+
 		switch(tile) {
 		case ' ':
 			if(boat()) newState.map.setCharAt(row(), column(), 'B');
@@ -202,10 +226,10 @@ public class MyState {
 		default://'?' and '.'
 			newState = null;
 		}
-	
+
 		if(newState == null || visualized.contains(newState))
 			return null;
-		
+
 		return newState;
 	}
 
@@ -234,27 +258,6 @@ public class MyState {
 		return false;
 	}
 
-	public static MyState treeState(Position pos) {
-		MyState s = new MyState(true, null, null, null, pos, null);
-		return s;
-	}
-
-	public static MyState borderState(Position pos) {
-		MyState s = new MyState(null, null, null, null, pos, null);
-		return s;
-	}
-
-	public static MyState goldState(Position gold) {
-		return new MyState(null, null, true, null, gold, null);
-	}
-	
-	public static MyState axeState(Position axe) {
-		return new MyState(true, null, true, null, axe, null);
-	}
-
-	public static MyState finalState() {
-		return new MyState(null, null, true, null, new Position(79, 79), null);
-	}
 	private boolean equalT(Object o1, Object o2) {
 		if(o1 == null || o2 == null) return true;
 		return o1.equals(o2);
