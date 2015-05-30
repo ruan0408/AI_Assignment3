@@ -40,7 +40,7 @@ public class TourGuide {
 		MyState finalState = MyState.finalState();
 		MyState goldState = MyState.goldState(gold);
 		MyState axeState = MyState.axeState(axe);
-
+		
 		if(!visitedTiles.contains(agent.getPosition()))
 			visitedTiles.add(agent.getPosition());
 

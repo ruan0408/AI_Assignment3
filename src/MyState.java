@@ -2,7 +2,9 @@ import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -24,7 +26,7 @@ public class MyState {
 	private int fValue;
 	private int gValue;
 	private MyState father;
-	private Deque<Entry<Position, Character>> changes;
+	private Map<Position, Character> changes;
 
 	public MyState(boolean axe, boolean boat, boolean gold, int dynammites, 
 			Position pos, Orientation ori, WorldMap map) {
@@ -37,7 +39,7 @@ public class MyState {
 		gValue = fValue = 0;
 		MyState.map = map;
 		father = null;
-		changes = new ArrayDeque<Entry<Position, Character>>();
+		changes = new HashMap<Position, Character>();
 	}
 
 	public MyState(MyState prototype) {
@@ -47,7 +49,8 @@ public class MyState {
 		dynamites = prototype.dynamites();
 		position = new Position(prototype.row(), prototype.column());
 		orientation = prototype.orientation().next(0);
-		changes = new ArrayDeque<Entry<Position, Character>>(prototype.changes);
+		changes = new HashMap<Position, Character>(prototype.changes);
+		
 	}
 	
 	public MyState(Boolean axe, Boolean boat, Boolean gold, Integer dyn, 
@@ -58,6 +61,7 @@ public class MyState {
 		this.dynamites = dyn;
 		position = pos;
 		orientation = ori;
+		changes = null;
 	}
 
 	public MyState copy() {
@@ -195,7 +199,7 @@ public class MyState {
 			break;
 		case '~':
 			if(!boat()) newState = null;
-			else newState.setCharAt(position, '~');
+			//else newState.setCharAt(position, '~');
 			break;
 		case 'T':
 		case '*':
@@ -265,17 +269,13 @@ public class MyState {
 	public char getChar() {return getCharAt(position);}
 	
 	public char getCharAt(Position p) {
-		//Deques are processed backwards
-		for(Entry<Position, Character> e : changes)
-			if(e.getKey().equals(p))
-				return e.getValue().charValue();
-		
+		if(changes.containsKey(p)) 
+			return changes.get(p);
+
 		return map.getCharAt(p);
 	}
 	
-	private void setCharAt(Position p, char c) {
-		changes.add(new AbstractMap.SimpleEntry<Position, Character>(p, c));
-	}
+	private void setCharAt(Position p, char c) {changes.put(p, c);}
 	
 	private void setChar(char c) {setCharAt(position, c);}
 	
@@ -290,7 +290,7 @@ public class MyState {
 
 		if((equalT(axe, s.axe) && equalT(boat, s.boat) && equalT(gold, s.gold) &&
 				equalT(dynamites, s.dynamites) && position.equals(s.position) && 
-				equalT(orientation, s.orientation)))
+				equalT(orientation, s.orientation)/* && equalT(changes, s.changes)*/))
 			return true;
 
 		return false;

@@ -63,7 +63,7 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, getPosition());
-		map.print();
+		//map.print();
 		action = guide.next();
 		updateState(action);
 		return action;
