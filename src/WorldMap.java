@@ -30,20 +30,6 @@ public class WorldMap {
 		return trees.get(i).getPosition();
 	}
 
-	private char[][] copyMap(){
-		char[][] newMap = new char[map.length][];
-		for(int i = 0; i < map.length; i++) {
-			newMap[i] = new char[map[i].length];
-			System.arraycopy(map[i], 0, newMap[i], 0, map[i].length);
-		}
-		return newMap;
-	}
-
-	public WorldMap copy() {
-		char[][] newMap = copyMap();
-		return new WorldMap(newMap);
-	}
-
 	public boolean isUnknown(int row, int column) throws ArrayIndexOutOfBoundsException{
 		return getCharAt(row, column) == '?';
 	}
@@ -63,7 +49,6 @@ public class WorldMap {
 	public void update(char[][] view, Orientation ori, Position myPos) {
 		WorldMap viewMap = new WorldMap(view);
 		viewMap.rotate(ori);
-		//viewMap.print();
 		int r = myPos.getRow();
 		int c = myPos.getColumn();
 		for(int i = 0; i < viewMap.rows() ; i++)
@@ -203,16 +188,4 @@ public class WorldMap {
 
 		map[r][c] = ch;
 	}
-
-	private char agentSymbol(Orientation ori) {
-		switch(ori) {
-		case NORTH: return '^';
-		case WEST: 	return '<';
-		case SOUTH: return 'v';
-		case EAST:	return '>';
-		default: 	return 'e';
-		}
-	}
 }
-
-

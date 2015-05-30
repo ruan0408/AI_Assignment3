@@ -63,9 +63,7 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, getPosition());
-		// map.print();
-		// System.out.println("\nAUXMAP:\n");
-		// map.printAux();
+		map.print();
 		action = guide.next();
 		updateState(action);
 		return action;
@@ -73,18 +71,12 @@ public class Agent {
 
 	private void updateState(char action) {
 		char frontTile = map.getFrontTile(myPos, ori);
-		//char currentTile = map.getCharAt(myPos);
 		switch(action) {
 		case 'C':
-			//if(frontTile == 'T') 
-			//map.setFrontTile(myPos, ori, ' ');
 			break;
 		case 'B':
-			//System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO DYNAMITEEEEEEEEEEEEEE");
 			useDynamite();
 			break;
-			//if(frontTile == 'T'|| frontTile == '*') 
-			//map.setFrontTile(myPos, ori, ' ');
 		case 'L':
 			ori = ori.next(1);
 			break;
@@ -168,8 +160,7 @@ public class Agent {
 		return map.getFrontTile(myPos, ori);
 	}
 
-	void print_view( char view[][] )
-	{
+	void print_view( char view[][] ) {
 		int i,j;
 
 		System.out.println("\n+-----+");
@@ -188,8 +179,7 @@ public class Agent {
 		System.out.println("+-----+");
 	}
 
-	public static void main( String[] args )
-	{
+	public static void main( String[] args ) {
 		InputStream in  = null;
 		OutputStream out= null;
 		Socket socket   = null;
@@ -230,7 +220,7 @@ public class Agent {
 						}
 					}
 				}
-				agent.print_view( view ); // COMMENT THIS OUT BEFORE SUBMISSION
+				//agent.print_view( view );  COMMENT THIS OUT BEFORE SUBMISSION
 				action = agent.get_action( view );
 				out.write( action );
 			}

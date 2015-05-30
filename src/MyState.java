@@ -262,9 +262,7 @@ public class MyState {
 		return false;
 	}
 	
-	public char getChar() {
-		return getCharAt(position);
-	}
+	public char getChar() {return getCharAt(position);}
 	
 	public char getCharAt(Position p) {
 		//Deques are processed backwards
@@ -279,17 +277,13 @@ public class MyState {
 		changes.add(new AbstractMap.SimpleEntry<Position, Character>(p, c));
 	}
 	
-	private void setChar(char c) {
-		setCharAt(position, c);
-	}
+	private void setChar(char c) {setCharAt(position, c);}
 	
-	
-	
-
 	private boolean equalT(Object o1, Object o2) {
 		if(o1 == null || o2 == null) return true;
 		return o1.equals(o2);
 	}
+	
 	@Override
 	public boolean equals(Object b) {
 		MyState s = (MyState)b;
