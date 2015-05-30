@@ -1,5 +1,9 @@
+import java.util.AbstractMap;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class MyState {
@@ -9,7 +13,7 @@ public class MyState {
 	private final int BACK = 2;
 	private final int RIGHT = 3;
 
-	WorldMap map;
+	private static WorldMap map;
 	Boolean axe;
 	Boolean boat;
 	Boolean gold;
@@ -20,7 +24,7 @@ public class MyState {
 	private int fValue;
 	private int gValue;
 	private MyState father;
-
+	private Deque<Entry<Position, Character>> changes;
 
 	public MyState(boolean axe, boolean boat, boolean gold, int dynammites, 
 			Position pos, Orientation ori, WorldMap map) {
@@ -31,8 +35,9 @@ public class MyState {
 		position = pos;
 		orientation = ori;
 		gValue = fValue = 0;
-		this.map = map;
+		MyState.map = map;
 		father = null;
+		changes = new ArrayDeque<Entry<Position, Character>>();
 	}
 
 	public MyState(MyState prototype) {
@@ -42,9 +47,9 @@ public class MyState {
 		dynamites = prototype.dynamites();
 		position = new Position(prototype.row(), prototype.column());
 		orientation = prototype.orientation().next(0);
-		map = prototype.map.copy();
+		changes = new ArrayDeque<Entry<Position, Character>>(prototype.changes);
 	}
-
+	
 	public MyState(Boolean axe, Boolean boat, Boolean gold, Integer dyn, 
 			Position pos, Orientation ori) {
 		this.axe = axe;
@@ -176,60 +181,59 @@ public class MyState {
 
 	private MyState setUp(int r, int c, Set<MyState> visualized) {
 		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return null;
-
+	
 		MyState newState = copy();
 		newState.setPosition(new Position(r, c));
-
-		char tile = newState.map.getCharAt(r, c);
-
+	
+		char tile = newState.getChar();
 		newState.updateOrientation();
-
+	
 		switch(tile) {
 		case ' ':
-			if(boat()) newState.map.setCharAt(row(), column(), 'B');
+			if(boat()) newState.setCharAt(position, 'B');
 			newState.setBoat(false);
 			break;
 		case '~':
-			if(!newState.boat()) newState = null;
-			else newState.map.setCharAt(row(), column(), '~');
+			if(!boat()) newState = null;
+			else newState.setCharAt(position, '~');
 			break;
 		case 'T':
 		case '*':
-			if(boat()) newState.map.setCharAt(row(), column(), 'B');
+			if(boat()) newState.setCharAt(position, 'B');
 			newState.setBoat(false);
-			if(newState.canDestroyObstable(tile)) {
-				newState.map.setCharAt(r, c, ' ');
-			} else newState = null;
+			if(newState.canDestroyObstable(tile)) 
+				newState.setChar(' ');
+			else newState = null;
 			break;
 		case 'B':
 			newState.setBoat(true);
-			newState.map.setCharAt(r, c, ' ');
+			newState.setChar(' ');
 			break;
-		case 'd': 
-			if(boat()) newState.map.setCharAt(row(), column(), 'B');
+		case 'd':
+			if(boat()) newState.setCharAt(position, 'B');
 			newState.setBoat(false);
 			newState.addDynamite();
-			newState.map.setCharAt(r, c, ' ');
+			newState.setChar(' ');
 			break;
 		case 'a':
-			if(boat()) newState.map.setCharAt(row(), column(), 'B');
+			if(boat()) newState.setCharAt(position, 'B');
 			newState.setBoat(false);
 			newState.setAxe(true);
-			newState.map.setCharAt(r, c, ' ');
+			newState.setChar(' ');
 			break;
 		case 'g':
-			if(boat()) newState.map.setCharAt(row(), column(), 'B');
+			if(boat()) newState.setCharAt(position, 'B');
 			newState.setBoat(false);
 			newState.setGold();
-			newState.map.setCharAt(r, c, ' ');
+			newState.setChar(' ');
 			break;
 		default://'?' and '.'
 			newState = null;
 		}
-
+	
 		if(newState == null || visualized.contains(newState))
 			return null;
-
+	
 		return newState;
 	}
 
@@ -257,6 +261,30 @@ public class MyState {
 		}
 		return false;
 	}
+	
+	public char getChar() {
+		return getCharAt(position);
+	}
+	
+	public char getCharAt(Position p) {
+		//Deques are processed backwards
+		for(Entry<Position, Character> e : changes)
+			if(e.getKey().equals(p))
+				return e.getValue().charValue();
+		
+		return map.getCharAt(p);
+	}
+	
+	private void setCharAt(Position p, char c) {
+		changes.add(new AbstractMap.SimpleEntry<Position, Character>(p, c));
+	}
+	
+	private void setChar(char c) {
+		setCharAt(position, c);
+	}
+	
+	
+	
 
 	private boolean equalT(Object o1, Object o2) {
 		if(o1 == null || o2 == null) return true;

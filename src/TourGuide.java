@@ -586,12 +586,14 @@ public class TourGuide {
 		MyState previous = states.remove(0);
 		//System.out.println("===========PATH TO ACTIONS LOOP=================");
 		for(MyState s : states) {
-			oldTile = previous.map.getCharAt(s.getPosition());
-			newTile = s.map.getCharAt(s.getPosition());
+			oldTile = previous.getCharAt(s.getPosition());
+			newTile = s.getChar();
 
 			actions += Orientation.difference(previous.orientation(), s.orientation());
-			if(oldTile == 'T' && newTile == ' ') actions += "C";
-			else if(oldTile == '*' && newTile == ' ') actions += "B";
+			if(previous.dynamites() > s.dynamites()) actions += "B";
+			else if(oldTile == 'T' && newTile == ' ') actions += "C";
+			//else if(previous.dynamites() > s.dynamites()) actions += "B";
+			//else if(oldTile == '*' && newTile == ' ') actions += "B";
 
 			if(!s.getPosition().equals(previous.getPosition())) actions += "F";
 			previous = s;
