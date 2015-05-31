@@ -63,13 +63,13 @@ public class Agent {
 			e.printStackTrace();
 		}
 		map.update(view, ori, getPosition());
-		map.print();
+	 
 		action = guide.next();
-		updateState(action);
+		if(!updateState(action)) return 'C';
 		return action;
 	}
 
-	private void updateState(char action) {
+	private boolean updateState(char action) {
 		char frontTile = map.getFrontTile(myPos, ori);
 		switch(action) {
 		case 'C':
@@ -84,7 +84,7 @@ public class Agent {
 			ori = ori.next(3); 
 			break;
 		case 'F':
-			if(!allowedToMove()) return;
+			if(!allowedToMove()) return false;
 			switch(frontTile) {
 			case 'T': 
 				setOnBoat(false);
@@ -122,12 +122,13 @@ public class Agent {
 				setOnBoat(false);
 				goForward();
 				break;
-			default: System.out.println("DEFAULT TILE HAPPENED");
+			default:
 			break;
 			}
 			break;
-		default: System.out.println("DEFAULT ACTION HAPPENED");
+		default: 
 		}
+		return true;
 	}
 
 	private void goForward() {
@@ -139,7 +140,7 @@ public class Agent {
 			case SOUTH: myPos.incrementRow(1); 		break;
 			}
 		} catch(Exception e) {
-			e.printStackTrace(System.out);
+		    return ;
 		}
 	}
 
@@ -151,8 +152,6 @@ public class Agent {
 				(frontTile == '*' && hasDynamite())) {
 			return true;
 		}
-		System.out.println("================== I SHOULDN'T BE MOVING =========================");
-		System.exit(-1);
 		return false;
 	}
 

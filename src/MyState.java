@@ -65,12 +65,7 @@ public class MyState {
 		child.setFather(this);
 		return child;
 	}
-	
-	public static MyState treeState(Position pos) {
-		MyState s = new MyState(true, null, null, null, pos, null);
-		return s;
-	}
-
+        
 	public static MyState borderState(Position pos) {
 		MyState s = new MyState(null, null, null, null, pos, null);
 		return s;

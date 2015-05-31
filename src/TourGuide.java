@@ -73,10 +73,18 @@ public class TourGuide {
 		}
 
 		Position p = frontier.poll();
-		while( !canGetTo(p) || !isWorthExplorin(p) || visitedTiles.contains(p) ){
+		int numIt = 0;
+		try{
+		    while( !canGetTo(p) || !isWorthExplorin(p) || visitedTiles.contains(p) ){
 			if(isWorthExplorin(p) && !isSurroundedByRocks(p) || !visitedTiles.contains(p))
-				frontier.add(p);
+			    frontier.add(p);
 			p = frontier.pop();
+			numIt++;
+			if(numIt > 550)
+			    return exploreRandom();
+		    }
+		} catch(Exception e){
+		    return exploreRandom();
 		}
 
 		MyState newState = MyState.borderState(p);
@@ -95,61 +103,14 @@ public class TourGuide {
 		return action;
 	}
 
-	private char explore2() {
-		MyState agentState = agent.getState();
-		MyState s;
-		System.out.println("CHOOSING BORDER");
-		border.clear();
-		border.addAll(findUnexploredBorder());
-		List<Position> list = new ArrayList<Position>(border);
-		do {
-			System.out.println("\tCHOOSING BORDER LOOP");
-			int i = random.nextInt(list.size());
-			s = MyState.borderState(list.get(i));
-			path = findActions(agentState, s, false, true);
-		} while(path == null || path.isEmpty());
-
-		return setPathAndAct(path);
-	}
-
 	private static Orientation OriFromInt(int i){
 		return	Orientation.values()[i];
 	}
 
 	private char setPathAndAct(List<Character> actions) {
 		path = actions;
-		System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
+		
 		return path.remove(0);
-	}
-
-	private Position findNextBorder(Position p){
-		int min = Integer.MAX_VALUE;
-		Position target = null;
-		for(Position b : frontier){
-			int distance = p.distance(b);
-			if(isWorthExplorin(b) && distance < min){
-				target = b;
-				min = distance;
-			}
-		}
-		frontier.remove(target);
-		return target;
-	}
-
-	private List<Position> findUnexploredBorder() {
-		WorldMap map = agent.map;
-		int r = agent.getPosition().getRow();
-		int c = agent.getPosition().getColumn();
-		List<Position> list = new ArrayList<Position>();
-		for(int i = 0; i /*r + 4*/< agent.map.rows(); i++)
-			for(int j = 0 ; j /*<= c + 4*/<agent.map.columns(); j++)
-				try {
-					if(!map.isUnknown(i, j) && (map.isUnknown(i-1, j) || map.isUnknown(i+1, j) ||
-							map.isUnknown(i, j-1) || map.isUnknown(i, j+1)))
-						list.add(new Position(i, j));
-				} catch(Exception e) {continue;}
-
-		return list;
 	}
 
 	private boolean willUncoverUnknow(Position p){
@@ -193,7 +154,7 @@ public class TourGuide {
 		int i = p.getRow();
 		int j = p.getColumn();
 		char tile = map.getCharAt(i,j);
-		return ((tile != '.') /*&& (!isBorderTile(tile))*/ && willUncoverUnknow(p));
+		return ((tile != '.') && willUncoverUnknow(p));
 	}
 
 	private boolean isAgentGoingToDie(char action) {
@@ -216,10 +177,7 @@ public class TourGuide {
 		MyState father = null;
 
 		while(!queue.isEmpty() && !(father = queue.remove()).equals(end)) {
-			//System.out.println("===========FIND ACTIONS MAIN LOOP=================");
-			//father.print("");
 			for(MyState child : father.validChildrenStates(visualized)) {
-				//System.out.println("\t\t===========FIND ACTIONS INTERNAL LOOP=================");
 				if(!dyn && father.dynamites() > child.dynamites()) {
 					visualized.add(child);
 					continue;
@@ -228,7 +186,6 @@ public class TourGuide {
 				child.setFValue(child.getGValue()+child.distance(end));
 				visualized.add(child);
 				queue.add(child);
-				//child.print("\t\t");
 			}
 		}
 		if(!close && !father.equals(end)) return null;
