@@ -5,6 +5,40 @@
  *  UNSW Session 1, 2012
  */
 
+/*
+By:
+
+Gervasio Protasio dos Santos Neto - 5050769
+Ruan De Menezes Costa - 5050761
+*/
+
+/*HOW IT WORKS:
+
+The main flow of the program is: If the agent is currently on it's way to
+somewhere, it executes the next action.  If not, and the agent has the gold,
+then go to the initial state.  If it doesn't but there is a path to the gold, it
+goes to get it. If the agent doesn't have an axe, but it can reach one (without
+using dynamites), it also goes get it.  If none of that happens, keep exploring.
+
+The exploring is done using the flood fill algorithm (for each adjacent
+position, if it hasn't been explored and doing so will uncover something new,
+put it in a stack. Then get the top of the stack).
+
+The program works based on tates (MyState class). At each step, the agent has a
+state. A state is made of a position on the map, number of dynamites, current
+orientation, and two booleans to know if the agent is on a boat and if it has an
+axe.  Two states are equal if all of this information is the same or if some of
+them are the same and the other are "don't cares" (which is represented by a
+null).
+
+To see if it can reach another state, the A* algorithm is used it expands the
+state tree with the valid states of it's 4 neighbors on the map. We can see if a
+state is valid by looking at the current state.  States that have already been
+visualized are kept on a HashSet and will not be generated again. The A* returns
+a list of positions to the goal.  There is another method that turns this list
+of positions into a list of actions (list of chars).
+*/
+
 import java.io.*;
 import java.net.*;
 
