@@ -52,15 +52,7 @@ public class WorldMap {
 		return map[r][c];
 	}
 
-	public void setFrontTile(Position pos, Orientation orientation, char ch) {
-		Position p = getFrontPosition(pos, orientation);
-
-		int r = p.getRow();
-		int c = p.getColumn();
-
-		map[r][c] = ch;
-	}
-	
+	//Updates the map given the view of the agent, it's orientation and position
 	public void update(char[][] view, Orientation ori, Position myPos) {
 		WorldMap viewMap = new WorldMap(view);
 		viewMap.rotate(ori);
@@ -129,14 +121,19 @@ public class WorldMap {
 		}
 		map = newMap;
 	}
-
+	//Updates the resources (gold position, axe position, dynamites)
 	private void updateResources() {
+		Position aux = null;
 		if(gold != null && getCharAt(getGoldPosition()) != 'g')
 			removeGold();
 		if(axe != null && getCharAt(getAxePostion()) != 'a')
 			removeAxe();
 		for(Position p : getDynamitePostions())
-			if(getCharAt(p) != 'd') removeDynamite(p);
+			if(getCharAt(p) != 'd') {
+				aux = p;
+				break;
+			}
+		if(aux != null) removeDynamite(aux);
 	}
 
 	private boolean isResource(char c)	{

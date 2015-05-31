@@ -21,7 +21,7 @@ public class MyState {
 	private final int BACK = 2;
 	private final int RIGHT = 3;
 
-	private static WorldMap map;
+	private static WorldMap map; // current map
 	Boolean axe;
 	Boolean boat;
 	Boolean gold;
@@ -29,10 +29,10 @@ public class MyState {
 	Position position;
 	Orientation orientation;
 
-	private int fValue;
-	private int gValue;
-	private MyState father;
-	private Deque<Entry<Position, Character>> changes;
+	private int fValue; 	// f() from the A*
+	private int gValue; 	// g() from the A*
+	private MyState father;	// state that generated me
+	private Deque<Entry<Position, Character>> changes; // changes that have been made to the map during the A*
 
 	public MyState(boolean axe, boolean boat, boolean gold, int dynammites, 
 			Position pos, Orientation ori, WorldMap map) {
@@ -48,6 +48,9 @@ public class MyState {
 		changes = new ArrayDeque<Entry<Position, Character>>();
 	}
 
+	/*
+	 * Creates a new MyState given a prototype state
+	 */
 	public MyState(MyState prototype) {
 		axe = prototype.axe();
 		boat = prototype.boat();
@@ -68,25 +71,27 @@ public class MyState {
 		orientation = ori;
 	}
 
+	
+	//Returns a copy of this state 
 	public MyState copy() {
 		MyState child = new MyState(this); 
 		child.setFather(this);
 		return child;
 	}
-        
+    //Returns a state that represents a border in the position pos
 	public static MyState borderState(Position pos) {
 		MyState s = new MyState(null, null, null, null, pos, null);
 		return s;
 	}
-
+    //Returns a state that represents having the gold in position gold
 	public static MyState goldState(Position gold) {
 		return new MyState(null, null, true, null, gold, null);
 	}
-
+    //Returns a state that represents having an axe at the position axe
 	public static MyState axeState(Position axe) {
 		return new MyState(true, null, true, null, axe, null);
 	}
-
+	//Returns a state the represents the final position of the game, that is, having the gold in the initial position
 	public static MyState finalState() {
 		return new MyState(null, null, true, null, new Position(79, 79), null);
 	}
@@ -149,7 +154,7 @@ public class MyState {
 		System.out.println(pad+"Orientation: "+orientation);
 		System.out.println();
 	}
-
+	//Returns a list of valid neighbors states
 	public List<MyState> validChildrenStates(Set<MyState>visualized) {
 		List<MyState> list = new ArrayList<MyState>();
 		MyState child;
@@ -168,7 +173,7 @@ public class MyState {
 
 		return list;
 	}
-
+	//Returns a new state for the given side if this new state is valid. Otherwise returns null
 	private MyState getState(int side, Set<MyState> visualized) {
 		int r = row();
 		int c = column();
@@ -181,7 +186,7 @@ public class MyState {
 		}
 		return neighbor;
 	}
-
+	// Creates a new state with positioned at r, c if it's valid
 	private MyState setUp(int r, int c, Set<MyState> visualized) {
 		if(r < 0 || r >= map.rows() || c < 0 || c >= map.columns()) return null;
 	
@@ -240,7 +245,7 @@ public class MyState {
 		return newState;
 	}
 
-	//the reference is my father
+	//Update my orientation. The reference is my father (state that generated me)
 	private void updateOrientation() {
 		Orientation aux = null;
 		for(int i = 0 ; i < 4; i++) {
@@ -250,7 +255,7 @@ public class MyState {
 		}
 		orientation = aux;
 	}
-
+	// Returns true if this is state can destroy an obstable and updates the state.
 	private boolean canDestroyObstable(char obst) {
 		switch(obst) {
 		case 'T': 	
@@ -264,11 +269,9 @@ public class MyState {
 		}
 		return false;
 	}
-	
-	public char getChar() {return getCharAt(position);}
-	
+	//Returns the char at position p. First searches on my own list of changes. If it hasn't been
+	//changed, looks for it in the map
 	public char getCharAt(Position p) {
-		//Deques are processed backwards
 		for(Entry<Position, Character> e : changes)
 			if(e.getKey().equals(p))
 				return e.getValue().charValue();
@@ -276,12 +279,16 @@ public class MyState {
 		return map.getCharAt(p);
 	}
 	
+	public char getChar() {return getCharAt(position);}
+	
+	//Register a change on a position.
 	private void setCharAt(Position p, char c) {
 		changes.add(new AbstractMap.SimpleEntry<Position, Character>(p, c));
 	}
 	
 	private void setChar(char c) {setCharAt(position, c);}
 	
+	//Implements equality with "don't cares". Don't cares are represented as null.
 	private boolean equalT(Object o1, Object o2) {
 		if(o1 == null || o2 == null) return true;
 		return o1.equals(o2);

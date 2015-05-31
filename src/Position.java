@@ -4,7 +4,9 @@ By:
 Gervasio Protasio dos Santos Neto - 5050769
 Ruan De Menezes Costa - 5050761
 */
-
+/*
+ * Represents a position on the map.
+ */
 public class Position {
 
 	private int row;
@@ -29,6 +31,7 @@ public class Position {
 		if(column < 0) throw new Exception();
 	}
 
+	//Returns the manhattan distance between two positions
 	public int distance(Position b) {
 		return Math.abs(getRow()-b.getRow()) + Math.abs(getColumn()-b.getColumn());
 	}

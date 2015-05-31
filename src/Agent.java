@@ -85,6 +85,7 @@ public class Agent {
 
 	public boolean hasBeenOnBoat(){return hasBeenOnBoat;}
 
+	//Returns the current state of the agent.
 	public MyState getState() {
 		return new MyState(hasAxe, onBoat, hasGold, numberOfDynamites, myPos, ori, map);
 	}
@@ -102,7 +103,7 @@ public class Agent {
 		if(!updateState(action)) return 'C';
 		return action;
 	}
-
+	//Updates the current state given the action chosen by the TourGuide.
 	private boolean updateState(char action) {
 		char frontTile = map.getFrontTile(myPos, ori);
 		switch(action) {
@@ -164,7 +165,7 @@ public class Agent {
 		}
 		return true;
 	}
-
+	//Updates the position of the agent
 	private void goForward() {
 		try {
 			switch(ori) {
@@ -177,7 +178,7 @@ public class Agent {
 		    return ;
 		}
 	}
-
+	//Returns false if the tour guide made a mistake (shouldn't happen).
 	private boolean allowedToMove() {
 		char frontTile = map.getFrontTile(myPos, ori);
 		if(frontTile == ' ' || frontTile == 'd' || frontTile == 'a' || 
@@ -188,7 +189,7 @@ public class Agent {
 		}
 		return false;
 	}
-
+	//Gets the tile in front of the agent
 	public char getFrontTile() {
 		return map.getFrontTile(myPos, ori);
 	}
