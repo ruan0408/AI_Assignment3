@@ -118,7 +118,7 @@ public class TourGuide {
 
 	private char setPathAndAct(List<Character> actions) {
 		path = actions;
-		System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
+		//System.out.println(Arrays.toString(actions.toArray(new Character[actions.size()])));
 		return path.remove(0);
 	}
 
@@ -216,8 +216,8 @@ public class TourGuide {
 		MyState father = null;
 
 		while(!queue.isEmpty() && !(father = queue.remove()).equals(end)) {
-			//System.out.println("===========FIND ACTIONS MAIN LOOP=================");
-			//father.print("");
+			System.out.println("===========FIND ACTIONS MAIN LOOP=================");
+			father.print("");
 			for(MyState child : father.validChildrenStates(visualized)) {
 				//System.out.println("\t\t===========FIND ACTIONS INTERNAL LOOP=================");
 				if(!dyn && father.dynamites() > child.dynamites()) {
@@ -228,7 +228,7 @@ public class TourGuide {
 				child.setFValue(child.getGValue()+child.distance(end));
 				visualized.add(child);
 				queue.add(child);
-				//child.print("\t\t");
+				child.print("\t\t");
 			}
 		}
 		if(!close && !father.equals(end)) return null;

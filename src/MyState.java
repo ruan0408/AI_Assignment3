@@ -290,7 +290,7 @@ public class MyState {
 
 		if((equalT(axe, s.axe) && equalT(boat, s.boat) && equalT(gold, s.gold) &&
 				equalT(dynamites, s.dynamites) && position.equals(s.position) && 
-				equalT(orientation, s.orientation)/* && equalT(changes, s.changes)*/))
+				equalT(orientation, s.orientation) && equalT(changes, s.changes)))
 			return true;
 
 		return false;
