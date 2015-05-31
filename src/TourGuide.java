@@ -7,26 +7,18 @@ Ruan De Menezes Costa - 5050761
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
-import java.util.Stack;
-import java.util.Map.Entry;
 
 public class TourGuide {
 
 	private Agent agent;
 	private List<Character> path;
-	private Set<Position> border;
 	private Random random;
 	private List<Position> visitedTiles;
 	private LinkedList<Position> frontier;
@@ -34,7 +26,6 @@ public class TourGuide {
 	public TourGuide(Agent agent) {
 		this.agent = agent;
 		path = new ArrayList<Character>();
-		border = new HashSet<Position>();
 		random = new Random();
 		frontier = new LinkedList<Position>();
 		visitedTiles = new LinkedList<Position>();
